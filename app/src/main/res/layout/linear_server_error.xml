@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:visibility="gone"
+    android:id="@+id/liServerError"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:orientation="vertical">
+
+    <com.wefly.wealert.utils.design.IconsEditTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:padding="8dp"
+        android:text="@string/ic_fonte_error_api"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/material_Design_IconsTextView_size" />
+
+    <TextView
+        android:layout_gravity="center"
+        android:textSize="25dp"
+        android:text="@string/error_api"
+        android:textColor="@color/colorPrimary"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

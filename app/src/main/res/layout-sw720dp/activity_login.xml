@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Rlayout"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:alpha="73"
+    tools:context="com.wefly.wealert.activities.LoginActivity">
+
+    <LinearLayout
+        android:id="@+id/liMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:layout_marginTop="@dimen/title_textview_margin_top_custom"
+            android:layout_width="111dp"
+            android:layout_height="117dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_logo" />
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/title_textview_margin_top"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_height="wrap_content">
+
+            <com.wefly.wealert.utils.design.RobotoTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_left"
+                android:textSize="@dimen/title_text_size_custom"
+                app:typeface="robotoBold"
+                android:textStyle="bold"
+                android:textColor="@color/colorTitleGreen"
+                android:padding="5dp"/>
+
+            <com.wefly.wealert.utils.design.RobotoTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_right"
+                android:textSize="@dimen/title_text_size_custom"
+                app:typeface="robotoBoldCondensed"
+                android:textStyle="bold"
+                android:textColor="@color/colorTitleGray"
+                android:padding="5dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/dm_left_right_padding"
+            android:paddingBottom="@dimen/dm_left_right_padding"
+            android:paddingRight="@dimen/dm_left_right_padding">
+
+            <LinearLayout
+                android:elevation="10dp"
+                android:layout_width="fill_parent"
+                android:layout_marginStart="@dimen/title_textview_margin_start"
+                android:layout_marginRight="@dimen/title_textview_margin_start"
+                android:layout_marginEnd="@dimen/title_textview_margin_start"
+                android:layout_marginLeft="@dimen/title_textview_margin_start"
+                android:layout_gravity="center"
+                android:layout_height="@dimen/title_textview_height"
+                android:layout_marginTop="@dimen/title_textview_margin_top"
+                android:background="@drawable/layout_linear_background"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+
+                <EditText
+                    android:id="@+id/nameEdText"
+                    android:layout_width="match_parent"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="normal"
+                    android:textColor="@color/colorTitleGray"
+                    android:textColorHint="@color/black"
+                    android:hint="@string/user_name"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    style="@style/EditTextWithPadding"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:elevation="10dp"
+                android:layout_marginStart="@dimen/title_textview_margin_start"
+                android:layout_marginRight="@dimen/title_textview_margin_start"
+                android:layout_marginEnd="@dimen/title_textview_margin_start"
+                android:layout_marginLeft="@dimen/title_textview_margin_start"
+                android:layout_marginBottom="@dimen/title_textview_margin_bottom"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/title_textview_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/title_textview_margin_top_edit"
+                android:background="@drawable/layout_linear_background"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+
+
+                <EditText
+                    android:id="@+id/passwordEdText"
+                    android:layout_width="match_parent"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="normal"
+                    android:textColor="@color/colorTitleGray"
+                    android:textColorHint="@color/black"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    style="@style/EditTextWithPadding"/>
+            </LinearLayout>
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/loginBtn"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_login"
+                android:backgroundTint="@android:color/transparent"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:elevation="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/view_bottom_height"
+        android:background="@drawable/img_rectangle2">
+    </View>
+
+
+    <include layout="@layout/loading_progress"/>
+
+
+</RelativeLayout>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.wefly.wealert">
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED">
+    </uses-permission>
+
+    <!-- Take Picture -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Storage -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:name="com.wefly.wealert.utils.AppController"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/MainTheme">
+        <receiver android:name=".tracking.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED">
+                </action>
+            </intent-filter>
+        </receiver>
+        <!-- this provider  for open file If your targetSdkVersion is 24 or higher -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <service android:name="com.wefly.wealert.presenters.BaseService" />
+
+        <activity
+            android:name="com.wefly.wealert.activities.onboardActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/MainTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.wefly.wealert.activities.LoginActivity"
+            android:theme="@style/ThemeWithoutActionBar" />
+        <activity
+            android:name="com.wefly.wealert.activities.LoadingActivity"
+            android:label="@string/title_activity_loading"
+            android:theme="@style/ThemeWithoutActionBar" />
+        <activity android:name="com.wefly.wealert.activities.RecorderActivity" />
+        <activity android:name="com.wefly.wealert.activities.SplashScreensActivity"
+            android:theme="@style/ThemeWithoutActionBar"/>
+        <activity android:name="com.wefly.wealert.presenters.DBActivity" />
+        <activity android:name="com.wefly.wealert.presenters.FormActivity" />
+        <activity android:name="com.wefly.wealert.activities.BootActivity"
+            android:theme="@style/MainTheme"/>
+        <activity android:name="com.wefly.wealert.activities.MenuActivity"
+            android:theme="@style/ThemeWithoutActionBar"/>
+        <service
+            android:name=".tracking.NavigationService"
+            android:enabled="true"
+            android:exported="true"/>
+    </application>
+
+</manifest>

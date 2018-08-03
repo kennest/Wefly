@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Rlayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/img_background"
+    tools:context="com.wefly.wealert.activities.SplashScreensActivity">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin_cus"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_cus"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_cus"
+        android:layout_marginTop="@dimen/activity_vertical_margin_top_cus"
+        android:background="@color/transparent">
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:orientation="vertical">
+
+            <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.Large.ChasingDots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="center"
+                android:paddingBottom="40dp"
+                android:paddingEnd="50dp"
+                android:paddingLeft="50dp"
+                android:paddingTop="50dp"
+                app:SpinKit_Color="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <com.wefly.wealert.utils.design.NativelyCustomTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="1dp"
+                    android:text="@string/title_left"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/title_text_size_custom"
+                    android:textStyle="bold" />
+
+                <com.wefly.wealert.utils.design.NativelyCustomTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="1dp"
+                    android:text="@string/title_right"
+                    android:textColor="@color/main_color_grey_50"
+                    android:textSize="@dimen/title_text_size_custom"
+                    android:textStyle="bold"
+                    app:typeface="robotoBoldCondensed" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</RelativeLayout>
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/home"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/terms"
+            android:icon="@drawable/license"
+            android:title="@string/terms" />
+        <item
+            android:id="@+id/privacy"
+            android:icon="@drawable/privacy"
+            android:title="@string/policy" />
+        <item
+            android:id="@+id/quit"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/exit" />
+    </group>
+</menu>

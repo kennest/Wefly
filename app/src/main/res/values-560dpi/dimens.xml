@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="title_textview_margin_top">55dp</dimen>
+    <dimen name="title_textview_margin_top_custom">40dp</dimen>
+    <dimen name="title_textview_margin_bottom">40dp</dimen>
+    <dimen name="title_textview_height">45dp</dimen>
+</resources>

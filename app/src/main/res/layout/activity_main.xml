@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerlayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/img_background"
+    android:fitsSystemWindows="true"
+    tools:context="com.wefly.wealert.activities.BootActivity">
+
+    <nl.psdcompany.duonavigationdrawer.views.DuoMenuView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:tag="@string/tag_menu"
+        android:id="@+id/sidemenu"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:background="@drawable/img_background"
+        app:menuAlphaClosed="0.0"
+        app:menuAlphaOpen="1.0"/>
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:tag="content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="@color/white">
+
+        </android.support.v7.widget.Toolbar>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/img_background">
+
+        </android.support.v4.view.ViewPager>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="14dp">
+
+        <LinearLayout
+            android:id="@+id/alert_loader_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_margin="5dp"
+            android:background="@color/white"
+            android:padding="5dp"
+            android:visibility="gone">
+
+            <antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+                android:id="@+id/alert_loader"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                app:progressColor="@color/colorPrimary" />
+
+            <TextView
+                android:id="@+id/alertloadertext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Loadertext"
+                android:paddingTop="25dp"
+                android:textColor="@color/colorPrimaryDark" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/piece_loader_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_margin="5dp"
+            android:background="@color/white"
+            android:padding="5dp"
+            android:visibility="gone">
+
+            <antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+                android:id="@+id/piece_loader"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                app:progressColor="@color/colorPrimary" />
+
+            <TextView
+                android:id="@+id/pieceloadertext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Loadertext"
+                android:paddingTop="25dp"
+                android:textColor="@color/colorPrimaryDark" />
+        </LinearLayout>
+    </FrameLayout>
+</nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout>

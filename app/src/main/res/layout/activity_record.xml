@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wefly.wealert.activities.RecorderActivity">
+
+    <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/spin_kit"
+        style="@style/SpinKitView.Large.Wave"
+        android:layout_width="match_parent"
+        android:layout_height="323dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center"
+        android:paddingBottom="50dp"
+        android:paddingEnd="50dp"
+        android:paddingLeft="50dp"
+        android:paddingTop="50dp"
+        app:SpinKit_Color="#316800" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="322dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="81dp"
+        android:backgroundTint="#316800"
+        android:text="@string/stop_and_save"
+        android:textColor="#FFFF" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="148dp"
+        android:text="@string/recording..."
+        android:textColor="#316800"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</RelativeLayout>

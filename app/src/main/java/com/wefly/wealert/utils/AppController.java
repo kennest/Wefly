@@ -237,9 +237,8 @@ public class AppController extends Application {
     public String getUserId() {
         if (this.isTokenValide()) {
             JWT jwt = new JWT(getToken());
-            Claim claim = jwt.getClaim("nameid");
+            Claim claim = jwt.getClaim("user_id");
             return claim.asString();
-
         } else {
             return "";
         }

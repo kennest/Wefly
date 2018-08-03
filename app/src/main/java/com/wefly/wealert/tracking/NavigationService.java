@@ -1,6 +1,7 @@
 package com.wefly.wealert.tracking;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
@@ -19,6 +20,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
+import com.github.pwittchen.reactivenetwork.library.rx2.ConnectivityPredicate;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.wefly.wealert.utils.AppController;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +38,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by deepshikha on 24/11/16.
@@ -48,7 +58,7 @@ public class NavigationService extends Service implements LocationListener {
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     //    long notify_interval = 5000;
-    long notify_interval = 60000;
+    long notify_interval = 1800000;
     public static String str_receiver = "servicetutorial.service.receiver";
     Intent intent;
     private String USERID_PREF_NAME = "userCredential";
@@ -66,13 +76,13 @@ public class NavigationService extends Service implements LocationListener {
         return null;
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void onCreate() {
         super.onCreate();
         mTimer = new Timer();
         mTimer.schedule(new TimerTaskToGetLocation(), 1, notify_interval);
         intent = new Intent(str_receiver);
-
 //        fn_getlocation();
 
     }
@@ -166,6 +176,7 @@ public class NavigationService extends Service implements LocationListener {
         }
     }
 
+    @SuppressLint("CheckResult")
     private void fn_update(Location location) {
         Date date = new Date();
         long currentTime = date.getTime();
@@ -183,9 +194,9 @@ public class NavigationService extends Service implements LocationListener {
 //      on vérife que le fichier existe s
 
         Log.e("heure", currentHour + "");
-        SharedPreferences settings = getSharedPreferences(USERID_PREF_NAME, MODE_PRIVATE);
-        String userid = settings.getString("userid", "");
-        Log.e("userid", userid + "");
+        AppController appController=AppController.getInstance();
+        String userId = appController.getUserId();
+        Log.e("userid", userId + "");
 
         if (6 <= currentHour && currentHour <= 18) {
 //            time += 1;time < 10
@@ -213,7 +224,6 @@ public class NavigationService extends Service implements LocationListener {
                     //ON crée un tableau contenant chaque locations
                     JSONArray locationArray = curenReportObj.getJSONArray("Positions");
                     // On rcupère l'identifiant dans le fichier charepreferences
-                    String userId = curenReportObj.getString("Userid");
                     //On ajoute la nouvelle position à l'ancien tableau
                     String gmt = curenReportObj.getString("gmt");
                     locationArray.put(locate);
@@ -244,7 +254,7 @@ public class NavigationService extends Service implements LocationListener {
                 // On crée un nouveau repport à partir des nouvelles données
                 JSONObject report = new JSONObject();
                 try {
-                    report.put("Userid", userid);
+                    report.put("Userid", userId);
                     report.put("Date", currentTime);
                     report.put("gmt", localTime);
                     report.put("Positions", locations);
@@ -335,14 +345,20 @@ public class NavigationService extends Service implements LocationListener {
                 "/data/data/com.wefly.wealert/shared_prefs/repportFile.xml");
         if (rf.exists()) {
 
-            //On vérifie la connexion internet si il existe
-            if (isNetworkAvailable()) {
-                SharedPreferences fileRepport = getSharedPreferences(REPORT_FILE_PREF_NAME, MODE_PRIVATE);
-                String fileRepportString = fileRepport.getString("reportfile", "");
-                //Debut requète vers la base de donnée
-                SendRepportsTask sendrepport = new SendRepportsTask(fileRepportString, getApplicationContext());
-                sendrepport.execute();
-            }
+            ReactiveNetwork.observeInternetConnectivity()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<Boolean>() {
+                        @Override public void accept(Boolean isConnectedToInternet) {
+                            if(isConnectedToInternet){
+                                SharedPreferences fileRepport = getSharedPreferences(REPORT_FILE_PREF_NAME, MODE_PRIVATE);
+                                String fileRepportString = fileRepport.getString("reportfile", "");
+                                //Debut requète vers la base de donnée
+                                SendRepportsTask sendrepport = new SendRepportsTask(fileRepportString, getApplicationContext());
+                                sendrepport.execute();
+                            }
+                        }
+                    });
         }
 
         intent.putExtra("latutide", location.getLatitude() + "");

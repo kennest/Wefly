@@ -124,4 +124,7 @@
     <string name="onboard3_description">you can start</string>
     <string name="onboard1_description">This application is used to send alerts, a little tour on the features</string>
     <string name="home">Home</string>
+    <string name="set_yout_work_period">Set yout Work Period</string>
+    <string name="begin">begin</string>
+    <string name="end">end</string>
 </resources>

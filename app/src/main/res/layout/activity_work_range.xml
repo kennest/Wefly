@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/img_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:background="#FFFF"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.294">
+
+        <TextView
+            android:id="@+id/lbl_range"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#306800"
+            android:gravity="center_horizontal"
+            android:padding="5dp"
+            android:text="@string/set_yout_work_period"
+            android:textColor="#FFFF"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/work_begin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/begin"
+            android:ems="10"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/work_end"
+            android:hint="@string/end"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#306800"
+            android:text="@string/save"
+            android:textColor="#FFFF"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

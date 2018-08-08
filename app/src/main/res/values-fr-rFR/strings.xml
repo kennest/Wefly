@@ -103,4 +103,12 @@
     <string name="onboard2_description">Gardez tous vos collaborateurs informer à l\'aide des photos et de message vocaux.</string>
     <string name="onboard3_title">C\'est parti !</string>
     <string name="onboard3_description">Vous Pouvez commencer</string>
+    <string name="set_yout_work_period">définir votre période de travail</string>
+    <string name="range_info">Vous ne pouvez pas vous déplacer en dessous de 1 heure !!</string>
+    <string name="begin">debut</string>
+    <string name="end">fin</string>
+    <string name="home">Camera</string>
+    <string name="no_attachments">ou pas de pieces jointes</string>
+    <string name="recording">enregistrement</string>
+    <string name="account">Compte</string>
 </resources>

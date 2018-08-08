@@ -122,7 +122,6 @@ public class BootActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(broadcastReceiver, new IntentFilter(NavigationService.str_receiver));
         EventBus.getDefault().register(this);
     }
 
@@ -139,11 +138,19 @@ public class BootActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-       startTracking();
+        startActivity(new Intent(BootActivity.this, WorkRangeActivity.class));
+
+        startTracking();
 
         //Launch Camera
         dispatchTakePictureIntent();
@@ -334,6 +341,7 @@ public class BootActivity extends AppCompatActivity {
         ArrayList<String> mMenuOptions = new ArrayList<>();
         mMenuOptions.add("Camera");
         mMenuOptions.add("Sent Alerts");
+        mMenuOptions.add("Adjust Work Period");
         mMenuOptions.add("Terms and conditions");
         mMenuOptions.add("Policy privacy");
         mMenuOptions.add("About");
@@ -364,21 +372,24 @@ public class BootActivity extends AppCompatActivity {
                         restart();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), String.valueOf(position), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), String.valueOf(position)+"Not Implemented Yet!", Toast.LENGTH_LONG).show();
                         break;
                     case 2:
+                        startActivity(new Intent(BootActivity.this, WorkRangeActivity.class));
+                        break;
+                    case 3:
                         sp.edit().putString("option_label", "Terms").apply();
                         startActivity(new Intent(BootActivity.this, MenuActivity.class));
                         break;
-                    case 3:
+                    case 4:
                         sp.edit().putString("option_label", "Policy").apply();
                         startActivity(new Intent(BootActivity.this, MenuActivity.class));
                         break;
-                    case 4:
+                    case 5:
                         sp.edit().putString("option_label", "About").apply();
                         startActivity(new Intent(BootActivity.this, MenuActivity.class));
                         break;
-                    case 5:
+                    case 6:
                         finishAffinity();
                 }
             }
@@ -560,8 +571,7 @@ public class BootActivity extends AppCompatActivity {
     }
 
     //Check if Lacation is enabled and launch teask
-    private void ensureLocationSettings()
-    {
+    private void ensureLocationSettings() {
         LocationSettingsRequest locationSettingsRequest = new LocationSettingsRequest.Builder()
                 .addLocationRequest(LocationRequest.create().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY))
                 .build();
@@ -652,7 +662,7 @@ public class BootActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-               // Toast.makeText(BootActivity.this, "onError called", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(BootActivity.this, "onError called", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -678,7 +688,7 @@ public class BootActivity extends AppCompatActivity {
 
             @Override
             public void onSubscribe(Disposable d) {
-               // Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -740,7 +750,7 @@ public class BootActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadRx(){
+    private void uploadRx() {
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -765,10 +775,10 @@ public class BootActivity extends AppCompatActivity {
                     public void run() {
                         restart();
                     }
-                },1000);
+                }, 1000);
             }
         };
-        Observable<Boolean> observable = new PieceUploadObservable().upload(pieces,alert);
+        Observable<Boolean> observable = new PieceUploadObservable().upload(pieces, alert);
 
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
@@ -780,17 +790,17 @@ public class BootActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Double latitude = Double.valueOf(intent.getStringExtra("latutide"));
             Double longitude = Double.valueOf(intent.getStringExtra("longitude"));
-            Log.e("Latitude2", latitude+"");
-            Log.e("Longitude2", longitude+"");
+            Log.e("Latitude2", latitude + "");
+            Log.e("Longitude2", longitude + "");
         }
     };
 
-    private void startTracking(){
+    private void startTracking() {
         //AlarmManager manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         //Calendar calendar = Calendar.getInstance();
         //calendar.set(Calendar.SECOND,1);
-        Intent intent = new Intent(getApplicationContext(),NavigationService.class);
-       // manager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,calendar.getTimeInMillis(),manager.INTERVAL_HALF_HOUR,intent);
+        Intent intent = new Intent(getApplicationContext(), NavigationService.class);
+        // manager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,calendar.getTimeInMillis(),manager.INTERVAL_HALF_HOUR,intent);
         stopService(intent);
         startService(intent);
     }

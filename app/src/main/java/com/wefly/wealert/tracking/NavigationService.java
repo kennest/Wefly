@@ -183,6 +183,8 @@ public class NavigationService extends Service implements LocationListener {
         int currentHour = date.getHours();
         JSONArray reportFile = new JSONArray();
         JSONArray locations = new JSONArray();
+        SharedPreferences sp = getSharedPreferences("settings", 0);
+        String work_range=sp.getString("work_range","[6,18]");
 //         getting lovale gmt
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"),
                 Locale.getDefault());
@@ -232,6 +234,7 @@ public class NavigationService extends Service implements LocationListener {
                     try {
                         report.put("Userid", userId);
                         report.put("Date", currentTime);
+                        report.put("period",work_range);
                         report.put("gmt", gmt);
                         report.put("Positions", locationArray);
                     } catch (JSONException e) {
@@ -256,6 +259,7 @@ public class NavigationService extends Service implements LocationListener {
                 try {
                     report.put("Userid", userId);
                     report.put("Date", currentTime);
+                    report.put("period",work_range);
                     report.put("gmt", localTime);
                     report.put("Positions", locations);
                 } catch (JSONException e) {

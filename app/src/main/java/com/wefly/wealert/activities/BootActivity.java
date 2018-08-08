@@ -148,8 +148,6 @@ public class BootActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startActivity(new Intent(BootActivity.this, WorkRangeActivity.class));
-
         startTracking();
 
         //Launch Camera
@@ -375,7 +373,7 @@ public class BootActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), String.valueOf(position)+"Not Implemented Yet!", Toast.LENGTH_LONG).show();
                         break;
                     case 2:
-                        startActivity(new Intent(BootActivity.this, WorkRangeActivity.class));
+                        startActivity(new Intent(BootActivity.this, WorkRangeActivity.class).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
                         break;
                     case 3:
                         sp.edit().putString("option_label", "Terms").apply();

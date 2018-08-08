@@ -16,6 +16,7 @@ import java.util.List;
 public class onboardActivity extends AhoyOnboarderActivity {
     boolean onboardpassed;
     boolean agree;
+    boolean setPeriodPassed;
     OptionsDialogFragment options=new OptionsDialogFragment();
 
     @Override
@@ -27,6 +28,8 @@ public class onboardActivity extends AhoyOnboarderActivity {
 
         //We check if the has already passed the on board screen
         checkOnboardPassed();
+
+        checkSetPeriodPassed();
 
         //Create Cards for Onboard
         AhoyOnboarderCard welcomeCard = new AhoyOnboarderCard(getString(R.string.onboard1_title), getString(R.string.onboard1_description), R.drawable.ic_logo);
@@ -101,6 +104,15 @@ public class onboardActivity extends AhoyOnboarderActivity {
             options.show(getSupportFragmentManager(), "Terms");
         }else{
             return;
+        }
+    }
+    protected void checkSetPeriodPassed(){
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("boot_options", 0);
+
+        setPeriodPassed=sp.getBoolean("setPeriodPassed",false);
+
+        if(setPeriodPassed==false) {
+            startActivity(new Intent(this, WorkRangeActivity.class));
         }
     }
 }

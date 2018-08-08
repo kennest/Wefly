@@ -26,18 +26,18 @@ import java.util.List;
 public class WorkRangeActivity extends AppCompatActivity {
     RangeSeekBar<Integer> range;
     Button save;
-    TextView begin,end;
+    TextView begin, end;
     Integer work_begin = 1;
     Integer work_end = 24;
     int preMin = -1;
     int preMax = -1;
+    List<Integer> work_range = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_range);
 
-        SharedPreferences sp=getSharedPreferences("settings",0);
 
         range = findViewById(R.id.range);
         save = findViewById(R.id.saveRange);
@@ -47,23 +47,25 @@ public class WorkRangeActivity extends AppCompatActivity {
 
         // Get noticed while dragging
         range.setNotifyWhileDragging(true);
-        range.setRangeValues(0,24);
+        range.setRangeValues(0, 24);
 
-        String old_work_range=sp.getString("work_range","empty");
-        Log.e(getLocalClassName(),"WR setting:"+old_work_range);
+        SharedPreferences sharedPreferences = getSharedPreferences("settings", 0);
 
-        if(!old_work_range.contentEquals("empty")){
-            old_work_range=old_work_range.substring(1,old_work_range.length()-1);
-            String[] stringArray=old_work_range.trim().split(",");
-            //int[] intArray = new int[stringArray.length];
-            //for (int i = 0; i < stringArray.length; i++) {
-            //String numberAsString = stringArray[i];
-            //intArray[i] = Integer.parseInt(numberAsString);
-                range.setSelectedMinValue(Integer.parseInt(stringArray[0].trim()));
-                range.setSelectedMaxValue(Integer.parseInt(stringArray[1].trim()));
-            begin.setText(stringArray[0].trim()+"H");
-            end.setText(stringArray[1].trim()+"H");
-            //}
+        String old_work_range = sharedPreferences.getString("work_range", null);
+        Log.e(getLocalClassName(), "WR setting:" + old_work_range);
+
+        if (old_work_range != null) {
+            old_work_range = old_work_range.substring(1, old_work_range.length() - 1);
+            String[] stringArray = old_work_range.trim().split(",");
+
+            range.setSelectedMinValue(Integer.parseInt(stringArray[0].trim()));
+            range.setSelectedMaxValue(Integer.parseInt(stringArray[1].trim()));
+
+            begin.setText(stringArray[0].trim() + "H");
+            end.setText(stringArray[1].trim() + "H");
+
+            work_begin = Integer.parseInt(stringArray[0].trim());
+            work_end = Integer.parseInt(stringArray[1].trim());
         }
 
         range.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
@@ -74,10 +76,9 @@ public class WorkRangeActivity extends AppCompatActivity {
                 int diff = maxValue - minValue;
                 if (diff == 0 || diff < 1) {
                     bar.setEnabled(false);
-                    if(minValue != preMin){
+                    if (minValue != preMin) {
                         range.setSelectedMinValue(preMin);
-                    }
-                    else if(maxValue != preMax){
+                    } else if (maxValue != preMax) {
                         range.setSelectedMaxValue(preMax);
                     }
                     AlertDialog.Builder alert = new AlertDialog.Builder(WorkRangeActivity.this);
@@ -85,7 +86,7 @@ public class WorkRangeActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            range.setEnabled(true);
+                            bar.setEnabled(true);
                         }
                     });
                     alert.setCancelable(false);
@@ -95,8 +96,8 @@ public class WorkRangeActivity extends AppCompatActivity {
                     preMin = minValue;
                     preMax = maxValue;
                 }
-                begin.setText(minValue+"H");
-                end.setText(maxValue+"H");
+                begin.setText(minValue + "H");
+                end.setText(maxValue + "H");
                 work_begin = minValue;
                 work_end = maxValue;
             }
@@ -105,26 +106,30 @@ public class WorkRangeActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Integer> work_range=new ArrayList<>();
                 work_range.add(work_begin);
                 work_range.add(work_end);
                 Toast.makeText(getApplicationContext(),"Work range:"+work_range.toString(), Toast.LENGTH_LONG).show();
-                sp.edit().putString("work_range",work_range.toString()).apply();
-                Snackbar.make(view, R.string.range_stored,Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, R.string.range_stored, Snackbar.LENGTH_LONG).show();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        sharedPreferences.edit().putString("work_range", work_range.toString()).apply();
+
+                        SharedPreferences sp2 = getSharedPreferences("boot_options", 0);
+                        sp2.edit().putBoolean("setPeriodPassed", true).apply();
+
                         finish();
                     }
-                },1000);
+                }, 1000);
             }
         });
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v(getLocalClassName(),"Destroyed");
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("settings", 0);
+        sp.edit().putString("work_range", work_range.toString()).apply();
+        Log.e(getLocalClassName(), "Destroyed");
     }
 }

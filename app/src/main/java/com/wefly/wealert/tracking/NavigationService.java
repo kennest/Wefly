@@ -58,7 +58,7 @@ public class NavigationService extends Service implements LocationListener {
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     //    long notify_interval = 5000;
-    long notify_interval = 1800000;
+    long notify_interval = 600000; //Chaque 5 min
     public static String str_receiver = "servicetutorial.service.receiver";
     Intent intent;
     private String USERID_PREF_NAME = "userCredential";
@@ -83,8 +83,6 @@ public class NavigationService extends Service implements LocationListener {
         mTimer = new Timer();
         mTimer.schedule(new TimerTaskToGetLocation(), 1, notify_interval);
         intent = new Intent(str_receiver);
-//        fn_getlocation();
-
     }
 
     @Override
@@ -170,9 +168,7 @@ public class NavigationService extends Service implements LocationListener {
     private class TimerTaskToGetLocation extends TimerTask {
         @Override
         public void run() {
-
             mHandler.post(() -> fn_getlocation());
-
         }
     }
 
@@ -199,8 +195,12 @@ public class NavigationService extends Service implements LocationListener {
         AppController appController=AppController.getInstance();
         String userId = appController.getUserId();
         Log.e("userid", userId + "");
+        SharedPreferences sharedPreferences = getSharedPreferences("settings", 0);
 
-        if (6 <= currentHour && currentHour <= 18) {
+        Integer begin=sharedPreferences.getInt("work_begin",6);
+        Integer end=sharedPreferences.getInt("work_end",18);
+
+        if (begin <= currentHour && currentHour <= end) {
 //            time += 1;time < 10
             JSONObject locate = new JSONObject();
             try {
@@ -277,7 +277,8 @@ public class NavigationService extends Service implements LocationListener {
                 Log.e("repport", newRepport + "");
 
             }
-        } else {
+        }
+        else {
             //On vérifie que le fichier report existe si oui
             File cf = new File(
                     "/data/data/com.wefly.wealert/shared_prefs/currentRepports.xml");
@@ -345,8 +346,7 @@ public class NavigationService extends Service implements LocationListener {
 
 //        On vérifie que le fichier report file existe si oui
 
-        File rf = new File(
-                "/data/data/com.wefly.wealert/shared_prefs/repportFile.xml");
+        File rf = new File("/data/data/com.wefly.wealert/shared_prefs/repportFile.xml");
         if (rf.exists()) {
 
             ReactiveNetwork.observeInternetConnectivity()
@@ -369,18 +369,4 @@ public class NavigationService extends Service implements LocationListener {
         intent.putExtra("longitude", location.getLongitude() + "");
         sendBroadcast(intent);
     }
-
-    public boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
-    }
-
-
 }

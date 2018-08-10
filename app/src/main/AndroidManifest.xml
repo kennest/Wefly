@@ -79,8 +79,9 @@
 
         <service
             android:name=".tracking.NavigationService"
-            android:enabled="true"
-            android:exported="true"/>
+            android:enabled="true" />
+        <service android:name=".services.OfflineService"
+            android:enabled="true" />
     </application>
 
 </manifest>

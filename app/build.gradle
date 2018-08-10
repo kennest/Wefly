@@ -111,5 +111,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     implementation 'com.github.pwittchen:reactivenetwork-rx2:2.0.0'
     implementation 'com.yahoo.mobile.client.android.util.rangeseekbar:rangeseekbar-library:0.1.0'
+    implementation 'com.android.support:multidex:1.0.1'
 }
 apply plugin: 'io.objectbox'

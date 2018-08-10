@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.wefly.wealert.R;
 
@@ -40,7 +41,7 @@ public class SendRepportsTask extends AsyncTask<Void, Integer, Void> {
 
         try {
             SendRepportUtilities report = new SendRepportUtilities();
-            String result = report.getResponseFromHttpUrl(mrepport,"http://217.182.133.143:8001/mobileposition/");
+            String result = report.getResponseFromHttpUrl(mrepport,"http://217.182.133.143:8000/geolocation/get-user-position/");
             Log.e("report", result);
             try {
                 JSONObject jsonresult = new JSONObject(result);
@@ -81,9 +82,7 @@ public class SendRepportsTask extends AsyncTask<Void, Integer, Void> {
 
         // Gets an instance of the NotificationManager service//
 
-        NotificationManager mNotificationManager =
-
-                (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // When you issue multiple notifications about the same type of event,
         // it’s best practice for your app to try to update an existing notification

@@ -1,7 +1,9 @@
 package com.wefly.wealert.activities;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +12,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -38,6 +42,8 @@ import com.jetradarmobile.rxlocationsettings.RxLocationSettings;
 import com.wefly.wealert.adapters.DrawerListAdapter;
 import com.wefly.wealert.adapters.RecipientAdapter;
 import com.wefly.wealert.adapters.ViewPagerAdapter;
+import com.wefly.wealert.dbstore.Category;
+import com.wefly.wealert.services.OfflineService;
 import com.wefly.wealert.tracking.NavigationService;
 import com.wefly.wealert.events.AlertSentEvent;
 import com.wefly.wealert.events.BeforeSendAlertEvent;
@@ -68,6 +74,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -150,6 +157,8 @@ public class BootActivity extends AppCompatActivity {
 
         startTracking();
 
+
+
         //Launch Camera
         dispatchTakePictureIntent();
 
@@ -182,8 +191,37 @@ public class BootActivity extends AppCompatActivity {
         alert_loader_text = findViewById(R.id.alertloadertext);
         piece_loader_text = findViewById(R.id.pieceloadertext);
 
-        loadCategorieRx();
-        loadRecipientRx();
+        Log.e(getLocalClassName(),"Title txt:"+edObject.getText().toString());
+
+        Box<com.wefly.wealert.dbstore.Recipient> recipientBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
+        if (recipientBox.count() == 0) {
+            loadRecipientRx();
+        } else {
+            List<Recipient> recList=new ArrayList<>();
+            for (com.wefly.wealert.dbstore.Recipient r : recipientBox.getAll()) {
+                Recipient item = new Recipient();
+                item.setAvatarUrl(r.getAvatar());
+                item.setUserName(r.getUsername());
+                item.setRecipientId(r.getRaw_id());
+                recList.add(item);
+            }
+            recipientList = vRecipient.findViewById(R.id.recipientList);
+            recipientList.setAdapter(new RecipientAdapter(getApplicationContext(), recList));
+        }
+
+        Box<com.wefly.wealert.dbstore.Category> categoryBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Category.class);
+        if (categoryBox.count() == 0) {
+            loadCategorieRx();
+        } else {
+            List<String> categorielist = new ArrayList<>();
+            for (Category c : categoryBox.getAll()) {
+                categorielist.add(c.getLabel());
+            }
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categorielist);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            category.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            category.setAdapter(spinnerAdapter);
+        }
 
         recordBtn.setOnClickListener(v -> {
             LaunchRecord();
@@ -343,6 +381,7 @@ public class BootActivity extends AppCompatActivity {
         mMenuOptions.add("Terms and conditions");
         mMenuOptions.add("Policy privacy");
         mMenuOptions.add("About");
+        mMenuOptions.add("Logout");
         mMenuOptions.add("Quit");
 
         drawerLayout.setDrawerListener(drawerToggle);
@@ -370,7 +409,7 @@ public class BootActivity extends AppCompatActivity {
                         restart();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), String.valueOf(position)+"Not Implemented Yet!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), String.valueOf(position) + "Not Implemented Yet!", Toast.LENGTH_LONG).show();
                         break;
                     case 2:
                         startActivity(new Intent(BootActivity.this, WorkRangeActivity.class).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
@@ -388,6 +427,11 @@ public class BootActivity extends AppCompatActivity {
                         startActivity(new Intent(BootActivity.this, MenuActivity.class));
                         break;
                     case 6:
+                        clearAppData();
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(0);
+                        break;
+                    case 7:
                         finishAffinity();
                 }
             }
@@ -445,7 +489,7 @@ public class BootActivity extends AppCompatActivity {
     /****************SendFragment*********************/
 
     private void saveInput() throws NullPointerException {
-        if (alert != null) {
+        if (alert != null && edObject.getText().toString()!="" && edContent.getText().toString()!="") {
             alert.setObject(edObject.getText().toString().trim());
             alert.setContent(edContent.getText().toString().trim());
             alert.setCategory(category.getSelectedItem().toString());
@@ -646,16 +690,22 @@ public class BootActivity extends AppCompatActivity {
     public void loadCategorieRx() {
         Observer mObserver = new Observer<String>() {
             List<String> categorielist = new ArrayList<>();
+            Box<com.wefly.wealert.dbstore.Category> categoryBox = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Category.class);
 
             @Override
             public void onSubscribe(Disposable d) {
                 //Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
+                categoryBox.removeAll();
             }
 
             @Override
             public void onNext(String s) {
                 //Toast.makeText(BootActivity.this, "onNext called: " + s, Toast.LENGTH_SHORT).show();
                 categorielist.add(s);
+
+                Category c = new Category();
+                c.setLabel(s);
+                categoryBox.put(c);
             }
 
             @Override
@@ -683,16 +733,24 @@ public class BootActivity extends AppCompatActivity {
     public void loadRecipientRx() {
         Observer mObserver = new Observer<Recipient>() {
             List<Recipient> recipients = new ArrayList<>();
+            Box<com.wefly.wealert.dbstore.Recipient> recipientBox = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
 
             @Override
             public void onSubscribe(Disposable d) {
                 // Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
+                recipientBox.removeAll();
             }
 
             @Override
             public void onNext(Recipient r) {
                 //Toast.makeText(BootActivity.this, "onNext called: " + r.getLastName(), Toast.LENGTH_SHORT).show();
                 recipients.add(r);
+
+                com.wefly.wealert.dbstore.Recipient recipient = new com.wefly.wealert.dbstore.Recipient();
+                recipient.setRaw_id(r.getRecipientId());
+                recipient.setAvatar(r.getAvatarUrl());
+                recipient.setUsername(r.getUserName());
+                recipientBox.put(recipient);
             }
 
             @Override
@@ -734,6 +792,7 @@ public class BootActivity extends AppCompatActivity {
 
                 @Override
                 public void onComplete() {
+                    showNotification("Alert Sended!");
                     Toast.makeText(BootActivity.this, "Alert Sended!", Toast.LENGTH_SHORT).show();
                     uploadRx();
                 }
@@ -768,6 +827,7 @@ public class BootActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 Toast.makeText(BootActivity.this, "Piece Sended!", Toast.LENGTH_SHORT).show();
+                showNotification("Piece Sended!");
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -798,8 +858,44 @@ public class BootActivity extends AppCompatActivity {
         //Calendar calendar = Calendar.getInstance();
         //calendar.set(Calendar.SECOND,1);
         Intent intent = new Intent(getApplicationContext(), NavigationService.class);
+        Intent offline = new Intent(getApplicationContext(), OfflineService.class);
         // manager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,calendar.getTimeInMillis(),manager.INTERVAL_HALF_HOUR,intent);
         stopService(intent);
+        stopService(offline);
+
         startService(intent);
+        startService(offline);
+    }
+
+    private void clearAppData() {
+        try {
+            // clearing app data
+            if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT) {
+                ((ActivityManager) getSystemService(ACTIVITY_SERVICE)).clearApplicationUserData(); // note: it has a return value!
+            } else {
+                String packageName = getApplicationContext().getPackageName();
+                Runtime runtime = Runtime.getRuntime();
+                runtime.exec("pm clear " + packageName);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showNotification(String msg) {
+        //Get an instance of NotificationManager//
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_logo)
+                        .setContentTitle("Wefly locate")
+                        .setContentText(msg);
+
+        // Gets an instance of the NotificationManager service//
+
+        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+//        NotificationManager.notify().
+        mNotificationManager.notify(001, mBuilder.build());
     }
 }

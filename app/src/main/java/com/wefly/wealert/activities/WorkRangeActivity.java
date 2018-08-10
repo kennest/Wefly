@@ -31,7 +31,6 @@ public class WorkRangeActivity extends AppCompatActivity {
     Integer work_end = 24;
     int preMin = -1;
     int preMax = -1;
-    List<Integer> work_range = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,12 +48,19 @@ public class WorkRangeActivity extends AppCompatActivity {
         range.setNotifyWhileDragging(true);
         range.setRangeValues(0, 24);
 
+        range.setSelectedMinValue(6);
+        range.setSelectedMaxValue(18);
+
+        begin.setText(6 + "H");
+        end.setText(18+ "H");
+
+
         SharedPreferences sharedPreferences = getSharedPreferences("settings", 0);
 
-        String old_work_range = sharedPreferences.getString("work_range", null);
+        String old_work_range = sharedPreferences.getString("work_range", "");
         Log.e(getLocalClassName(), "WR setting:" + old_work_range);
 
-        if (old_work_range != null) {
+        if (old_work_range != "") {
             old_work_range = old_work_range.substring(1, old_work_range.length() - 1);
             String[] stringArray = old_work_range.trim().split(",");
 
@@ -106,6 +112,7 @@ public class WorkRangeActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                List<Integer> work_range = new ArrayList<>();
                 work_range.add(work_begin);
                 work_range.add(work_end);
                 Toast.makeText(getApplicationContext(),"Work range:"+work_range.toString(), Toast.LENGTH_LONG).show();
@@ -114,6 +121,8 @@ public class WorkRangeActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         sharedPreferences.edit().putString("work_range", work_range.toString()).apply();
+                        sharedPreferences.edit().putInt("work_begin",work_begin).apply();
+                        sharedPreferences.edit().putInt("work_end",work_end).apply();
 
                         SharedPreferences sp2 = getSharedPreferences("boot_options", 0);
                         sp2.edit().putBoolean("setPeriodPassed", true).apply();
@@ -128,8 +137,6 @@ public class WorkRangeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("settings", 0);
-        sp.edit().putString("work_range", work_range.toString()).apply();
         Log.e(getLocalClassName(), "Destroyed");
     }
 }

@@ -87,14 +87,6 @@ public class AppController extends Application {
         AppController.pieceList = pieceList;
     }
 
-    public static String getAudioPath() {
-        return audioPath;
-    }
-
-    public static void setAudioPath(String audioPath) {
-        AppController.audioPath = audioPath;
-    }
-
     public static synchronized AppController getInstance() {
         return mInstance;
     }
@@ -252,41 +244,6 @@ public class AppController extends Application {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-
-    public @NonNull
-    CopyOnWriteArrayList<Recipient> recipiencesStringToList(@NonNull String str) {
-        CopyOnWriteArrayList<Recipient> list = new CopyOnWriteArrayList<>();
-        try {
-            JSONArray array = new JSONArray(str);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                Recipient reci = new Recipient();
-                reci.setIdOnServer(obj.getInt("id"));
-                reci.setTel(obj.getString("telephone"));
-                reci.setRef(obj.getString("reference"));
-                reci.setDateCreate(obj.getString("create_at"));
-                reci.setDeleted(obj.getBoolean("delete"));
-                reci.setFonction(obj.getInt("fonction"));
-                reci.setAdresse(obj.getInt("adresse"));
-                reci.setRole(obj.getInt("role"));
-                reci.setEntreprise(obj.getInt("entreprise"));
-                reci.setSuperieur(obj.getInt("superieur"));
-                reci.setFirstName(obj.getJSONObject("user")
-                        .getString("first_name"));
-                reci.setLastName(obj.getJSONObject("user")
-                        .getString("last_name"));
-                reci.setEmail(obj.getJSONObject("user")
-                        .getString("email"));
-                reci.setUserName(obj.getJSONObject("user")
-                        .getString("username"));
-                list.add(reci);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.v(Constants.APP_NAME, TAG + " CAN'T getRegions");
-        }
-        return list;
-    }
 
     public @NonNull
     CopyOnWriteArrayList<Recipient> recipiencesJSONArrToList(@NonNull JSONArray array) {

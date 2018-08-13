@@ -2,7 +2,6 @@ package com.wefly.wealert.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +26,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -73,12 +72,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -96,17 +91,12 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.functions.Action1;
-import uk.co.markormesher.android_fab.FloatingActionButton;
 
 import static android.app.AlarmManager.INTERVAL_HALF_HOUR;
 
 public class BootActivity extends AppCompatActivity {
     AppController appController = AppController.getInstance();
-    List<Recipient> recipients = new ArrayList<>();
-    static Map<String, Integer> response_category = new HashMap<>();
-    private HashSet<Piece> pieces = new HashSet<>();
-    private static Bundle bundle = new Bundle();
-    FloatingActionButton fab;
+    private Set<Piece> pieces = new HashSet<>();
     View vForm, vRecipient;
     List<View> fragments = new ArrayList<>();
     private LinearLayout pieceLayout;
@@ -114,6 +104,7 @@ public class BootActivity extends AppCompatActivity {
     private static Alert alert = new Alert();
     private android.support.design.widget.FloatingActionButton recordBtn;
     private Button btnSend, nextBtn;
+    private ImageButton addPicBtn;
     private EditText edObject, edContent;
     static ViewPager viewPager;
     CircularProgressIndicator alert_loader;
@@ -157,8 +148,9 @@ public class BootActivity extends AppCompatActivity {
 
         startTracking();
 
-
-
+        if (getStoredPieces().size() > 0) {
+            pieces = getStoredPieces();
+        }
         //Launch Camera
         dispatchTakePictureIntent();
 
@@ -181,6 +173,7 @@ public class BootActivity extends AppCompatActivity {
         recordBtn = vForm.findViewById(R.id.recordBtn);
         nextBtn = vForm.findViewById(R.id.nextBtn);
         btnSend = vRecipient.findViewById(R.id.btnSend);
+        addPicBtn = vForm.findViewById(R.id.addPic);
         edObject = vForm.findViewById(R.id.objectEdText);
         edContent = vForm.findViewById(R.id.contentEdText);
         alert_loader = findViewById(R.id.alert_loader);
@@ -191,13 +184,13 @@ public class BootActivity extends AppCompatActivity {
         alert_loader_text = findViewById(R.id.alertloadertext);
         piece_loader_text = findViewById(R.id.pieceloadertext);
 
-        Log.e(getLocalClassName(),"Title txt:"+edObject.getText().toString());
+        Log.e(getLocalClassName(), "Title txt:" + edObject.getText().toString());
 
         Box<com.wefly.wealert.dbstore.Recipient> recipientBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
         if (recipientBox.count() == 0) {
             loadRecipientRx();
         } else {
-            List<Recipient> recList=new ArrayList<>();
+            List<Recipient> recList = new ArrayList<>();
             for (com.wefly.wealert.dbstore.Recipient r : recipientBox.getAll()) {
                 Recipient item = new Recipient();
                 item.setAvatarUrl(r.getAvatar());
@@ -239,6 +232,13 @@ public class BootActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ensureLocationSettings();
                 SendRx();
+            }
+        });
+
+        addPicBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent();
             }
         });
 
@@ -300,11 +300,13 @@ public class BootActivity extends AppCompatActivity {
             Log.v("Picture path", filepath);
 
             galleryAddPic(filepath);
+
             Piece p = new Piece();
             p.setIndex(System.currentTimeMillis());
             p.setUrl(filepath.trim());
             p.setContentUrl(Uri.fromFile(new File(filepath.trim())));
             pieces.add(p);
+            storePieces();
             pieceLayout.removeAllViews();
             FillPieceLayout();
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == 0) {
@@ -316,10 +318,8 @@ public class BootActivity extends AppCompatActivity {
             Log.v("OnResult Audio index", String.valueOf(audio.getIndex()));
             audio.setUrl(url);
             audio.setContentUrl(Uri.fromFile(new File(audio.getUrl().trim())));
-
             pieces.add(audio);
-            Log.v("piece size added", String.valueOf(pieces.size()));
-
+            storePieces();
             ImageView audioimage = new ImageView(getApplicationContext());
             audioimage.setImageResource(R.drawable.microphone);
             audioimage.setTag(audio.getIndex());
@@ -339,6 +339,7 @@ public class BootActivity extends AppCompatActivity {
                     Log.v("stored index", String.valueOf(p.getIndex()));
                     if (p.getIndex() == index) {
                         pieces.remove(p);
+                        storePieces();
                     }
                     recordBtn.setClickable(true);
                     recordBtn.setEnabled(true);
@@ -349,21 +350,50 @@ public class BootActivity extends AppCompatActivity {
             });
             pieceLayout.addView(audioimage);
         }
+
     }
 
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
         Log.e(getLocalClassName(), "back pressed");
+        storePieces();
         pieceLayout.removeAllViews();
         dispatchTakePictureIntent();
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        deleteStoredPieces();
         Log.e(getLocalClassName(), "destroyed");
+    }
+
+    protected void storePieces() {
+        SharedPreferences sp = getSharedPreferences("settings", 0);
+        Set<String> storedpieces = new HashSet<>();
+        for (Piece p : pieces) {
+            storedpieces.add(p.getUrl());
+        }
+        sp.edit().putStringSet("storedpieces", storedpieces).apply();
+    }
+
+    protected Set<Piece> getStoredPieces() {
+        SharedPreferences sp = getSharedPreferences("settings", 0);
+        Set<String> storedpieces = sp.getStringSet("storedpieces", new HashSet<>());
+        Set<Piece> set = new HashSet<>();
+        for (String s : storedpieces) {
+            Piece p = new Piece();
+            p.setUrl(s);
+            p.setContentUrl(Uri.fromFile(new File(p.getUrl().trim())));
+            set.add(p);
+        }
+        return set;
+    }
+
+    protected void deleteStoredPieces() {
+        SharedPreferences sp = getSharedPreferences("settings", 0);
+        sp.edit().remove("storedpieces").apply();
     }
 
     private void InitSideMenu() {
@@ -441,8 +471,7 @@ public class BootActivity extends AppCompatActivity {
     /****************SendFragment*********************/
     private void FillPieceLayout() {
         //Fill Image View
-        Log.e(getLocalClassName(), "FillPieceLayout piece size 1: " + String.valueOf(pieces.size()));
-        for (Piece item : pieces) {
+        for (Piece item : getStoredPieces()) {
             ImageView image = new ImageView(getApplicationContext());
             Log.e(getLocalClassName(), "image retrieved path: " + item.getUrl().toString());
             Log.v("Image path", item.getUrl());
@@ -489,7 +518,8 @@ public class BootActivity extends AppCompatActivity {
     /****************SendFragment*********************/
 
     private void saveInput() throws NullPointerException {
-        if (alert != null && edObject.getText().toString()!="" && edContent.getText().toString()!="") {
+
+        if (alert != null && edObject.getText().toString() != "" && edContent.getText().toString() != "") {
             alert.setObject(edObject.getText().toString().trim());
             alert.setContent(edContent.getText().toString().trim());
             alert.setCategory(category.getSelectedItem().toString());

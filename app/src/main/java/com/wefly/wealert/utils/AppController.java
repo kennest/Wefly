@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
 import com.wefly.wealert.activities.BootActivity;
@@ -99,7 +98,7 @@ public class AppController extends Application {
         //Init ObjectBox
         boxStore = MyObjectBox.builder().androidContext(this).build();
         if (BuildConfig.DEBUG) {
-            boolean started = new AndroidObjectBrowser(boxStore).start(this);
+            boolean started = new AndroidObjectBrowser(boxStore).start(getApplicationContext());
             Log.i("ObjectBrowser", "Started: " + started);
         }
 

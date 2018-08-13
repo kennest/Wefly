@@ -113,6 +113,8 @@ public class WorkRangeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 List<Integer> work_range = new ArrayList<>();
+                work_begin=range.getSelectedMinValue();
+                work_end=range.getSelectedMaxValue();
                 work_range.add(work_begin);
                 work_range.add(work_end);
                 Toast.makeText(getApplicationContext(),"Work range:"+work_range.toString(), Toast.LENGTH_LONG).show();

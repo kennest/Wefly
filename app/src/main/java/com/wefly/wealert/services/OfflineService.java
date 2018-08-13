@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import io.objectbox.Box;
 import io.reactivex.Observable;
@@ -162,6 +163,7 @@ public class OfflineService extends Service {
                     .filter(ConnectivityPredicate.hasState(NetworkInfo.State.CONNECTED))
                     .filter(ConnectivityPredicate.hasType(ConnectivityManager.TYPE_MOBILE))
                     .filter(ConnectivityPredicate.hasType(ConnectivityManager.TYPE_WIFI))
+                    .retryWhen(observable -> Observable.timer(5, TimeUnit.SECONDS))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<Connectivity>() {
                         @Override public void accept(final Connectivity connectivity) {

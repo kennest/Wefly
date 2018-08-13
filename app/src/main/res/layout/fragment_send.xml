@@ -18,17 +18,27 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <LinearLayout
-                android:id="@+id/pieceToSend"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="5dp"
-                android:background="@color/grey_200"
-                android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:id="@+id/pieceToSend"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="5dp"
+                    android:background="@color/grey_200"
+                    android:orientation="horizontal"
+                    android:layout_weight="1">
+                </LinearLayout>
+                <ImageButton
+                    android:id="@+id/addPic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="add..."
+                    app:srcCompat="@drawable/add_pic" />
+            </FrameLayout>
 
-            </LinearLayout>
         </HorizontalScrollView>
-
         <Spinner
             android:id="@+id/categorySpinner"
             android:layout_width="match_parent"

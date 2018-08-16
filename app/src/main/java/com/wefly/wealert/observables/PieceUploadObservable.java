@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
@@ -31,11 +32,11 @@ public class PieceUploadObservable {
     private AppController appController=AppController.getInstance();
     private String prefresponse;
 
-    public Observable<Boolean> upload(Set<Piece> pieces,Alert alert){
+    public Observable<Boolean> upload(List<Piece> pieces, Alert alert){
         return Observable.fromCallable(()-> process(pieces,alert));
     }
 
-    private Boolean process(Set<Piece>pieces,Alert alert){
+    private Boolean process(List<Piece>pieces,Alert alert){
         try {
             SharedPreferences sp = appController.getSharedPreferences("sent_data", 0);
             prefresponse = sp.getString("sent_response", "NO DATA IN PREFS");

@@ -27,7 +27,8 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

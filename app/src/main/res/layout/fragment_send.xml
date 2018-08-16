@@ -15,30 +15,46 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible">
+            <!--HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
                 <LinearLayout
                     android:id="@+id/pieceToSend"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="5dp"
                     android:background="@color/grey_200"
                     android:orientation="horizontal"
-                    android:layout_weight="1">
-                </LinearLayout>
-                <ImageButton
-                    android:id="@+id/addPic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="add..."
-                    app:srcCompat="@drawable/add_pic" />
-            </FrameLayout>
+                    android:padding="5dp">
 
-        </HorizontalScrollView>
+                </LinearLayout>
+            </HorizontalScrollView-->
+            <GridView
+                android:id="@+id/pieceToSend"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:numColumns="auto_fit"
+                android:background="@color/white"
+                android:layout_margin="10dp">
+
+            </GridView>
+
+            <ImageButton
+                android:id="@+id/addPic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:background="@color/transparent"
+                android:padding="5dp"
+                android:src="@drawable/add_pic" />
+        </LinearLayout>
         <Spinner
             android:id="@+id/categorySpinner"
             android:layout_width="match_parent"

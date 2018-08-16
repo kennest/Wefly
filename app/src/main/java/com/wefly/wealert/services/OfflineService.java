@@ -27,6 +27,7 @@ import com.wefly.wealert.tracking.SendRepportsTask;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +47,7 @@ import static com.wefly.wealert.utils.AppController.boxStore;
 
 public class OfflineService extends Service {
     Box<Alert> box = boxStore.boxFor(Alert.class);
-    Set<Piece> pieces = new HashSet<>();
+    List<Piece> pieces = new ArrayList<>();
     Piece piece = new Piece();
     com.wefly.wealert.models.Alert alert = new com.wefly.wealert.models.Alert();
     Timer mTimer = null;
@@ -114,7 +115,7 @@ public class OfflineService extends Service {
         }
     }
 
-    private void uploadRx(Set<Piece> plist, com.wefly.wealert.models.Alert a) {
+    private void uploadRx(List<Piece> plist, com.wefly.wealert.models.Alert a) {
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {

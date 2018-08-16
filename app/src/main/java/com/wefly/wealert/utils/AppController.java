@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
+import com.orhanobut.hawk.Hawk;
 import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.activities.onboardActivity;
 import com.wefly.wealert.dbstore.MyObjectBox;
@@ -52,7 +53,7 @@ public class AppController extends Application {
     private static ArrayList<Activity> activitiesList = new ArrayList<>();
     private static ArrayList<AsyncTask<Void, Integer, Boolean>> tasksList = new ArrayList<>();
     private String token = "";
-    private static Set<Piece> pieceList = new HashSet<>();
+    private static List<Piece> pieceList = new ArrayList<>();
     private static String audioPath;
     public Map<String, Integer> alert_categories = new HashMap();
     private CopyOnWriteArrayList<Recipient> recipientsList = new CopyOnWriteArrayList<>();
@@ -78,11 +79,11 @@ public class AppController extends Application {
         this.recipientsList = recipientsList;
     }
 
-    public static Set<Piece> getPieceList() {
+    public static List<Piece> getPieceList() {
         return pieceList;
     }
 
-    public static void setPieceList(Set<Piece> pieceList) {
+    public static void setPieceList(List<Piece> pieceList) {
         AppController.pieceList = pieceList;
     }
 
@@ -101,6 +102,8 @@ public class AppController extends Application {
             boolean started = new AndroidObjectBrowser(boxStore).start(getApplicationContext());
             Log.i("ObjectBrowser", "Started: " + started);
         }
+
+        Hawk.init(getApplicationContext()).build();
 
         //GET RECIPIENTS LIST
         try {

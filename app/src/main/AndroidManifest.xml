@@ -76,6 +76,7 @@
         <activity android:name="com.wefly.wealert.activities.MenuActivity"
             android:theme="@style/ThemeWithoutActionBar"/>
         <activity android:name=".activities.WorkRangeActivity" />
+        <activity android:name=".activities.AlertListActivity" />
 
         <service
             android:name=".tracking.NavigationService"

@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,7 +39,9 @@ import com.github.florent37.rxgps.RxGps;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.jetradarmobile.rxlocationsettings.RxLocationSettings;
+import com.orhanobut.hawk.Hawk;
 import com.wefly.wealert.adapters.DrawerListAdapter;
+import com.wefly.wealert.adapters.PieceAdapter;
 import com.wefly.wealert.adapters.RecipientAdapter;
 import com.wefly.wealert.adapters.ViewPagerAdapter;
 import com.wefly.wealert.dbstore.Category;
@@ -46,7 +49,6 @@ import com.wefly.wealert.services.OfflineService;
 import com.wefly.wealert.tracking.NavigationService;
 import com.wefly.wealert.events.AlertSentEvent;
 import com.wefly.wealert.events.BeforeSendAlertEvent;
-import com.wefly.wealert.events.BeforeUploadEvent;
 import com.wefly.wealert.events.JsonExceptionEvent;
 import com.wefly.wealert.events.OptionSelectedEvent;
 import com.wefly.wealert.events.PieceRemoveEvent;
@@ -59,7 +61,6 @@ import com.wefly.wealert.observables.AlertPostObservable;
 import com.wefly.wealert.observables.CategoriesListObservable;
 import com.wefly.wealert.observables.PieceUploadObservable;
 import com.wefly.wealert.observables.RecipientsListObservable;
-import com.wefly.wealert.services.RemoteService;
 import com.wefly.wealert.tasks.PieceUploadTask;
 import com.wefly.wealert.utils.AppController;
 import com.wefly.wealert.R;
@@ -75,7 +76,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
 import io.objectbox.Box;
@@ -87,19 +88,15 @@ import io.reactivex.schedulers.Schedulers;
 import nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout;
 import nl.psdcompany.duonavigationdrawer.views.DuoMenuView;
 import nl.psdcompany.duonavigationdrawer.widgets.DuoDrawerToggle;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.functions.Action1;
-
-import static android.app.AlarmManager.INTERVAL_HALF_HOUR;
 
 public class BootActivity extends AppCompatActivity {
     AppController appController = AppController.getInstance();
-    private Set<Piece> pieces = new HashSet<>();
+    private List<Piece> pieces = new ArrayList<>();
     View vForm, vRecipient;
     List<View> fragments = new ArrayList<>();
-    private LinearLayout pieceLayout;
+    //private LinearLayout pieceLayout;
+    private GridView pieceLayout;
     static ListView recipientList;
     private static Alert alert = new Alert();
     private android.support.design.widget.FloatingActionButton recordBtn;
@@ -147,19 +144,14 @@ public class BootActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         startTracking();
-
-        if (getStoredPieces().size() > 0) {
-            pieces = getStoredPieces();
-        }
         //Launch Camera
         dispatchTakePictureIntent();
 
         SharedPreferences sp = getSharedPreferences("recipients", 0);
         for (String key : sp.getAll().keySet()) {
             if (key.matches("recipients_id"))
-                sp.edit().remove(key);
+                sp.edit().remove(key).apply();
         }
-        sp.edit().commit();
 
         ensureLocationSettings();
 
@@ -170,6 +162,8 @@ public class BootActivity extends AppCompatActivity {
         fragments.add(vRecipient);
 
         pieceLayout = vForm.findViewById(R.id.pieceToSend);
+
+
         recordBtn = vForm.findViewById(R.id.recordBtn);
         nextBtn = vForm.findViewById(R.id.nextBtn);
         btnSend = vRecipient.findViewById(R.id.btnSend);
@@ -242,6 +236,7 @@ public class BootActivity extends AppCompatActivity {
             }
         });
 
+
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getApplicationContext(), fragments);
         viewPager.setAdapter(pagerAdapter);
@@ -297,29 +292,39 @@ public class BootActivity extends AppCompatActivity {
             String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), imageBitmap, "Title", null);
             String filepath = PathUtil.getPath(getApplicationContext(), Uri.parse(path));
 
-            Log.v("Picture path", filepath);
+            Log.e("Picture path", filepath);
 
             galleryAddPic(filepath);
 
             Piece p = new Piece();
-            p.setIndex(System.currentTimeMillis());
-            p.setUrl(filepath.trim());
-            p.setContentUrl(Uri.fromFile(new File(filepath.trim())));
+            p.setIndex(UUID.randomUUID().toString());
+            p.setUrl(filepath);
+            p.setContentUrl(Uri.fromFile(new File(p.getUrl().trim())));
+
             pieces.add(p);
-            storePieces();
-            pieceLayout.removeAllViews();
+
+            storePieces(pieces);
+
+            Log.e("OnResult Image URI", p.getContentUrl().toString());
+
+            //pieceLayout.removeAllViews();
             FillPieceLayout();
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == 0) {
             restart();
         } else if (resultCode == 200 && requestCode == 352 && data != null) {
             Piece audio = new Piece();
             String url = data.getExtras().getString("audioPath");
-            audio.setIndex(System.currentTimeMillis());
-            Log.v("OnResult Audio index", String.valueOf(audio.getIndex()));
+            audio.setIndex(UUID.randomUUID().toString());
+
+            Log.e("OnResult Audio index", String.valueOf(audio.getIndex()));
+
             audio.setUrl(url);
             audio.setContentUrl(Uri.fromFile(new File(audio.getUrl().trim())));
+
             pieces.add(audio);
-            storePieces();
+
+            storePieces(pieces);
+
             ImageView audioimage = new ImageView(getApplicationContext());
             audioimage.setImageResource(R.drawable.microphone);
             audioimage.setTag(audio.getIndex());
@@ -330,16 +335,16 @@ public class BootActivity extends AppCompatActivity {
 
             audioimage.setOnClickListener(v -> {
                 Toast.makeText(getApplicationContext(), "Piece removed!", Toast.LENGTH_SHORT).show();
-                long index = Long.parseLong(v.getTag().toString());
-                Log.v("audio clicked index", String.valueOf(index));
-                Set<Piece> tmp = new HashSet<>();
+                String index = v.getTag().toString();
+                Log.e("audio clicked index", String.valueOf(index));
+                List<Piece> tmp = new ArrayList<>();
                 tmp.addAll(pieces);
                 for (Piece p : tmp) {
                     Log.v("clicked index", String.valueOf(index));
                     Log.v("stored index", String.valueOf(p.getIndex()));
-                    if (p.getIndex() == index) {
+                    if (p.getIndex().equals(index)) {
                         pieces.remove(p);
-                        storePieces();
+                        storePieces(pieces);
                     }
                     recordBtn.setClickable(true);
                     recordBtn.setEnabled(true);
@@ -348,7 +353,7 @@ public class BootActivity extends AppCompatActivity {
                 pieceLayout.removeView(v);
                 EventBus.getDefault().post(new PieceRemoveEvent(pieces.size()));
             });
-            pieceLayout.addView(audioimage);
+            FillPieceLayout();
         }
 
     }
@@ -357,43 +362,32 @@ public class BootActivity extends AppCompatActivity {
     public void onBackPressed() {
         //super.onBackPressed();
         Log.e(getLocalClassName(), "back pressed");
-        storePieces();
-        pieceLayout.removeAllViews();
+        storePieces(pieces);
+        pieceLayout.invalidateViews();
         dispatchTakePictureIntent();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        deleteStoredPieces();
+        //deleteStoredPieces();
         Log.e(getLocalClassName(), "destroyed");
     }
 
-    protected void storePieces() {
-        SharedPreferences sp = getSharedPreferences("settings", 0);
-        Set<String> storedpieces = new HashSet<>();
-        for (Piece p : pieces) {
-            storedpieces.add(p.getUrl());
-        }
-        sp.edit().putStringSet("storedpieces", storedpieces).apply();
+    private void storePieces(List<Piece> new_list) {
+            Hawk.put("pieces",new_list);
     }
 
-    protected Set<Piece> getStoredPieces() {
-        SharedPreferences sp = getSharedPreferences("settings", 0);
-        Set<String> storedpieces = sp.getStringSet("storedpieces", new HashSet<>());
-        Set<Piece> set = new HashSet<>();
-        for (String s : storedpieces) {
-            Piece p = new Piece();
-            p.setUrl(s);
-            p.setContentUrl(Uri.fromFile(new File(p.getUrl().trim())));
-            set.add(p);
+    protected List<Piece> getStoredPieces() {
+        List<Piece> list = new ArrayList<>();
+        if(Hawk.contains("pieces")) {
+            list = Hawk.get("pieces");
         }
-        return set;
+        return list;
     }
 
     protected void deleteStoredPieces() {
-        SharedPreferences sp = getSharedPreferences("settings", 0);
-        sp.edit().remove("storedpieces").apply();
+       Hawk.delete("pieces");
     }
 
     private void InitSideMenu() {
@@ -440,6 +434,7 @@ public class BootActivity extends AppCompatActivity {
                         break;
                     case 1:
                         Toast.makeText(getApplicationContext(), String.valueOf(position) + "Not Implemented Yet!", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(BootActivity.this,AlertListActivity.class));
                         break;
                     case 2:
                         startActivity(new Intent(BootActivity.this, WorkRangeActivity.class).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
@@ -471,42 +466,25 @@ public class BootActivity extends AppCompatActivity {
     /****************SendFragment*********************/
     private void FillPieceLayout() {
         //Fill Image View
-        for (Piece item : getStoredPieces()) {
-            ImageView image = new ImageView(getApplicationContext());
-            Log.e(getLocalClassName(), "image retrieved path: " + item.getUrl().toString());
-            Log.v("Image path", item.getUrl());
-            if (item.getExtension(item.getUrl()).matches(".m4a")) {
-                image.setImageResource(R.drawable.microphone);
-            } else {
-                image.setImageURI(item.getContentUrl());
-            }
-            image.setTag(item.getIndex());
-            image.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
-            image.setPadding(0, 0, 5, 0);
-            image.setScaleType(ImageView.ScaleType.FIT_XY);
-            image.setOnClickListener(view -> {
-                removeImage(view);
-                EventBus.getDefault().post(new PieceRemoveEvent(pieces.size()));
-            });
-            pieceLayout.addView(image);
-        }
+        PieceAdapter pieceAdapter = new PieceAdapter(getApplicationContext(),getStoredPieces());
+        //pieceAdapter.notifyDataSetChanged();
+        pieceLayout.setAdapter(pieceAdapter);
     }
 
     private void removeImage(View view) {
-        Toast.makeText(appController.getApplicationContext(), "Piece removed!", Toast.LENGTH_SHORT).show();
-        long index = Long.parseLong(view.getTag().toString());
+        String index = view.getTag().toString();
         Log.v("image clicked index", String.valueOf(index));
         Set<Piece> tmp = new HashSet<>();
         tmp.addAll(pieces);
         for (Piece p : tmp) {
             Log.v("clicked index", String.valueOf(index));
             Log.v("stored index", String.valueOf(p.getIndex()));
-            if (p.getIndex() == index) {
+            if (p.getIndex().equals(index)) {
                 pieces.remove(p);
+                storePieces(pieces);
             }
         }
         Log.v("piece size 2", String.valueOf(pieces.size()));
-        pieceLayout.removeView(view);
     }
 
     private void LaunchRecord() {
@@ -570,38 +548,11 @@ public class BootActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBeforeUpload(BeforeUploadEvent event) {
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRecipientEmptyEvent(RecipientEmptyEvent event) {
         viewPager.setCurrentItem(1);
         Snackbar.make(vRecipient, event.message, Snackbar.LENGTH_LONG).show();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAlertSentEvent(AlertSentEvent event) {
-        alert_loader_content.setVisibility(View.GONE);
-
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("recipients", 0);
-        for (String key : sp.getAll().keySet()) {
-            if (key.matches("recipients_id"))
-                sp.edit().remove(key);
-        }
-        sp.edit().commit();
-
-        alert_loader.setCurrentProgress(0);
-        if (appController.getPieceList().size() > 0) {
-            Log.v("Alert Post Execute", "RUN");
-            PieceUploadTask pieceUploadTask = new PieceUploadTask(pieces, alert);
-            piece_loader.setMaxProgress(pieces.size());
-            pieceUploadTask.setProgressBar(piece_loader);
-            piece_loader_text.setText("Uploading pieces...");
-            piece_loader_content.setVisibility(View.VISIBLE);
-            pieceUploadTask.execute();
-        }
-    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onUploadDoneEvent(UploadDoneEvent event) {
@@ -679,43 +630,6 @@ public class BootActivity extends AppCompatActivity {
                 });
     }
 
-    protected void testRX() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://217.182.133.143:8000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
-        RemoteService service = retrofit.create(RemoteService.class);
-
-        Observable<String> observable = service.CategoriesList("JWT " + appController.getToken());
-
-        observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .timeout(10, TimeUnit.SECONDS)
-                .subscribe(new Observer<String>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(String s) {
-                        Toast.makeText(getApplicationContext(), "OBS result" + s, Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Toast.makeText(getApplicationContext(), "OBS error" + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
 
     public void loadCategorieRx() {
         Observer mObserver = new Observer<String>() {

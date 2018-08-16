@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.wefly.wealert.models.Alert;
 import com.wefly.wealert.models.Piece;
 import com.wefly.wealert.tasks.CategoryGetTask;

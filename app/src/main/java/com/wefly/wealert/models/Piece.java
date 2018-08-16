@@ -1,26 +1,21 @@
 package com.wefly.wealert.models;
 
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
-
-import com.wefly.wealert.utils.AppController;
-
 import java.io.File;
 import java.io.Serializable;
 
 public class Piece implements Serializable{
-    private long index=0;
+    private String index;
     private String url;
-    private transient Uri contentUrl;
+    private  Uri contentUrl;
     private Integer email;
     private Integer alert;
 
-    public long getIndex() {
+    public String getIndex() {
         return index;
     }
 
-    public void setIndex(long index) {
+    public void setIndex(String index) {
         this.index = index;
     }
 

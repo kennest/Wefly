@@ -66,7 +66,7 @@ public class AlertPostItemTask extends TaskPresenter implements PieceUploadTask.
     public AlertPostItemTask(@NonNull Alert alert) {
         this.alert = alert;
         appController = AppController.getInstance();
-        this.pieces = appController.getPieceList();
+        //this.pieces = appController.getPieceList();
     }
 
     @Override

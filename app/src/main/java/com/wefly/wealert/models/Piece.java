@@ -7,7 +7,6 @@ import java.io.Serializable;
 public class Piece implements Serializable{
     private String index;
     private String url;
-    private  Uri contentUrl;
     private Integer email;
     private Integer alert;
 
@@ -19,13 +18,6 @@ public class Piece implements Serializable{
         this.index = index;
     }
 
-    public Uri getContentUrl() {
-        return contentUrl;
-    }
-
-    public void setContentUrl(Uri contentUrl) {
-        this.contentUrl = contentUrl;
-    }
 
     public String getUrl() {
         return url;

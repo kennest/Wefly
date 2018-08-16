@@ -35,6 +35,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.github.florent37.rxgps.RxGps;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -92,7 +93,7 @@ import rx.functions.Action1;
 
 public class BootActivity extends AppCompatActivity {
     AppController appController = AppController.getInstance();
-    private List<Piece> pieces = new ArrayList<>();
+    private static List<Piece> pieces = new ArrayList<>();
     View vForm, vRecipient;
     List<View> fragments = new ArrayList<>();
     //private LinearLayout pieceLayout;
@@ -299,13 +300,11 @@ public class BootActivity extends AppCompatActivity {
             Piece p = new Piece();
             p.setIndex(UUID.randomUUID().toString());
             p.setUrl(filepath);
-            p.setContentUrl(Uri.fromFile(new File(p.getUrl().trim())));
 
             pieces.add(p);
 
-            storePieces(pieces);
+            storePieces();
 
-            Log.e("OnResult Image URI", p.getContentUrl().toString());
 
             //pieceLayout.removeAllViews();
             FillPieceLayout();
@@ -319,11 +318,10 @@ public class BootActivity extends AppCompatActivity {
             Log.e("OnResult Audio index", String.valueOf(audio.getIndex()));
 
             audio.setUrl(url);
-            audio.setContentUrl(Uri.fromFile(new File(audio.getUrl().trim())));
 
             pieces.add(audio);
 
-            storePieces(pieces);
+            storePieces();
 
             ImageView audioimage = new ImageView(getApplicationContext());
             audioimage.setImageResource(R.drawable.microphone);
@@ -344,7 +342,7 @@ public class BootActivity extends AppCompatActivity {
                     Log.v("stored index", String.valueOf(p.getIndex()));
                     if (p.getIndex().equals(index)) {
                         pieces.remove(p);
-                        storePieces(pieces);
+                        storePieces();
                     }
                     recordBtn.setClickable(true);
                     recordBtn.setEnabled(true);
@@ -362,7 +360,7 @@ public class BootActivity extends AppCompatActivity {
     public void onBackPressed() {
         //super.onBackPressed();
         Log.e(getLocalClassName(), "back pressed");
-        storePieces(pieces);
+        storePieces();
         pieceLayout.invalidateViews();
         dispatchTakePictureIntent();
     }
@@ -374,14 +372,14 @@ public class BootActivity extends AppCompatActivity {
         Log.e(getLocalClassName(), "destroyed");
     }
 
-    private void storePieces(List<Piece> new_list) {
-            Hawk.put("pieces",new_list);
+    protected void storePieces() {
+            FastSave.getInstance().saveObjectsList("pieces",pieces);
     }
 
     protected List<Piece> getStoredPieces() {
         List<Piece> list = new ArrayList<>();
-        if(Hawk.contains("pieces")) {
-            list = Hawk.get("pieces");
+        if(FastSave.getInstance().isKeyExists("pieces")) {
+            list = FastSave.getInstance().getObjectsList("pieces",Piece.class);
         }
         return list;
     }
@@ -481,7 +479,7 @@ public class BootActivity extends AppCompatActivity {
             Log.v("stored index", String.valueOf(p.getIndex()));
             if (p.getIndex().equals(index)) {
                 pieces.remove(p);
-                storePieces(pieces);
+                storePieces();
             }
         }
         Log.v("piece size 2", String.valueOf(pieces.size()));

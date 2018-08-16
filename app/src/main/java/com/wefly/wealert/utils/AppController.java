@@ -14,6 +14,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
 import com.orhanobut.hawk.Hawk;
@@ -102,8 +104,8 @@ public class AppController extends Application {
             boolean started = new AndroidObjectBrowser(boxStore).start(getApplicationContext());
             Log.i("ObjectBrowser", "Started: " + started);
         }
+        FastSave.init(getApplicationContext());
 
-        Hawk.init(getApplicationContext()).build();
 
         //GET RECIPIENTS LIST
         try {

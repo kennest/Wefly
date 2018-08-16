@@ -112,5 +112,6 @@ dependencies {
     implementation 'com.yahoo.mobile.client.android.util.rangeseekbar:rangeseekbar-library:0.1.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation "com.orhanobut:hawk:2.0.1"
+    implementation 'com.github.yehiahd:FastSave-Android:1.0.4'
 }
 apply plugin: 'io.objectbox'

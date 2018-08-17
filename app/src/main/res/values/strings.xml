@@ -129,4 +129,7 @@
     <string name="end">end</string>
     <string name="range_info">You cant move below 1 Hours!!</string>
     <string name="range_stored">Settings successfully Stored</string>
+    <string name="store_alert_msg">You\'re offline,save alert and send it later?</string>
+    <string name="store_alert_title">Warning!</string>
+    <string name="no">No</string>
 </resources>

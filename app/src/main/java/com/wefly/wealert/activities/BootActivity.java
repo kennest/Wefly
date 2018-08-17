@@ -2,13 +2,19 @@ package com.wefly.wealert.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +26,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,10 +45,10 @@ import android.widget.Toast;
 
 import com.appizona.yehiahd.fastsave.FastSave;
 import com.github.florent37.rxgps.RxGps;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.jetradarmobile.rxlocationsettings.RxLocationSettings;
-import com.orhanobut.hawk.Hawk;
 import com.wefly.wealert.adapters.DrawerListAdapter;
 import com.wefly.wealert.adapters.PieceAdapter;
 import com.wefly.wealert.adapters.RecipientAdapter;
@@ -48,7 +56,6 @@ import com.wefly.wealert.adapters.ViewPagerAdapter;
 import com.wefly.wealert.dbstore.Category;
 import com.wefly.wealert.services.OfflineService;
 import com.wefly.wealert.tracking.NavigationService;
-import com.wefly.wealert.events.AlertSentEvent;
 import com.wefly.wealert.events.BeforeSendAlertEvent;
 import com.wefly.wealert.events.JsonExceptionEvent;
 import com.wefly.wealert.events.OptionSelectedEvent;
@@ -62,7 +69,6 @@ import com.wefly.wealert.observables.AlertPostObservable;
 import com.wefly.wealert.observables.CategoriesListObservable;
 import com.wefly.wealert.observables.PieceUploadObservable;
 import com.wefly.wealert.observables.RecipientsListObservable;
-import com.wefly.wealert.tasks.PieceUploadTask;
 import com.wefly.wealert.utils.AppController;
 import com.wefly.wealert.R;
 import com.wefly.wealert.utils.PathUtil;
@@ -70,6 +76,7 @@ import com.wefly.wealert.utils.PathUtil;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.reactivestreams.Publisher;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -78,6 +85,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
 import io.objectbox.Box;
@@ -85,6 +93,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout;
 import nl.psdcompany.duonavigationdrawer.views.DuoMenuView;
@@ -136,7 +145,7 @@ public class BootActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(broadcastReceiver);
+        //unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -174,8 +183,8 @@ public class BootActivity extends AppCompatActivity {
         alert_loader = findViewById(R.id.alert_loader);
         piece_loader = findViewById(R.id.piece_loader);
         category = vForm.findViewById(R.id.categorySpinner);
-        alert_loader_content = (LinearLayout) findViewById(R.id.alert_loader_content);
-        piece_loader_content = (LinearLayout) findViewById(R.id.piece_loader_content);
+        alert_loader_content = findViewById(R.id.alert_loader_content);
+        piece_loader_content = findViewById(R.id.piece_loader_content);
         alert_loader_text = findViewById(R.id.alertloadertext);
         piece_loader_text = findViewById(R.id.pieceloadertext);
 
@@ -223,10 +232,23 @@ public class BootActivity extends AppCompatActivity {
         });
 
         btnSend.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
                 ensureLocationSettings();
-                SendRx();
+                ReactiveNetwork.checkInternetConnectivity()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(Boolean aBoolean) throws Exception {
+                                if (aBoolean) {
+                                    SendRx();
+                                } else {
+                                    showStoreAlertDialog();
+                                }
+                            }
+                        });
             }
         });
 
@@ -237,6 +259,40 @@ public class BootActivity extends AppCompatActivity {
             }
         });
 
+        edContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                checkAlertIsNull();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        edObject.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                checkAlertIsNull();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getApplicationContext(), fragments);
@@ -244,6 +300,9 @@ public class BootActivity extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (position == 1) {
+                    checkAlertIsNull();
+                }
             }
 
             @Override
@@ -263,6 +322,27 @@ public class BootActivity extends AppCompatActivity {
             }
         });
         InitSideMenu();
+    }
+
+    private void checkAlertIsNull() {
+        if (alert == null) {
+            viewPager.setCurrentItem(0);
+        }
+        if (edObject.getText().toString().trim().length() == 0) {
+            viewPager.setCurrentItem(0);
+            Snackbar.make(vForm, R.string.empty_object, Snackbar.LENGTH_LONG).show();
+            edObject.setBackgroundColor(Color.RED);
+        } else {
+            edObject.setBackgroundColor(Color.WHITE);
+        }
+
+        if (edContent.getText().toString().trim().length() == 0) {
+            viewPager.setCurrentItem(0);
+            Snackbar.make(vForm, R.string.empty_content, Snackbar.LENGTH_LONG).show();
+            edContent.setBackgroundColor(Color.RED);
+        } else {
+            edContent.setBackgroundColor(Color.WHITE);
+        }
     }
 
     private void dispatchTakePictureIntent() {
@@ -285,6 +365,7 @@ public class BootActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Log.e(getLocalClassName(), "Req code:" + requestCode + "Res Code:" + resultCode);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            pieces = getStoredPieces();
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
 
@@ -305,12 +386,12 @@ public class BootActivity extends AppCompatActivity {
 
             storePieces();
 
-
             //pieceLayout.removeAllViews();
             FillPieceLayout();
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == 0) {
             restart();
         } else if (resultCode == 200 && requestCode == 352 && data != null) {
+            pieces = getStoredPieces();
             Piece audio = new Piece();
             String url = data.getExtras().getString("audioPath");
             audio.setIndex(UUID.randomUUID().toString());
@@ -373,19 +454,19 @@ public class BootActivity extends AppCompatActivity {
     }
 
     protected void storePieces() {
-            FastSave.getInstance().saveObjectsList("pieces",pieces);
+        FastSave.getInstance().saveObjectsList("pieces", pieces);
     }
 
     protected List<Piece> getStoredPieces() {
         List<Piece> list = new ArrayList<>();
-        if(FastSave.getInstance().isKeyExists("pieces")) {
-            list = FastSave.getInstance().getObjectsList("pieces",Piece.class);
+        if (FastSave.getInstance().isKeyExists("pieces")) {
+            list = FastSave.getInstance().getObjectsList("pieces", Piece.class);
         }
         return list;
     }
 
     protected void deleteStoredPieces() {
-       Hawk.delete("pieces");
+        FastSave.getInstance().deleteValue("pieces");
     }
 
     private void InitSideMenu() {
@@ -432,7 +513,7 @@ public class BootActivity extends AppCompatActivity {
                         break;
                     case 1:
                         Toast.makeText(getApplicationContext(), String.valueOf(position) + "Not Implemented Yet!", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(BootActivity.this,AlertListActivity.class));
+                        startActivity(new Intent(BootActivity.this, AlertListActivity.class));
                         break;
                     case 2:
                         startActivity(new Intent(BootActivity.this, WorkRangeActivity.class).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
@@ -464,25 +545,41 @@ public class BootActivity extends AppCompatActivity {
     /****************SendFragment*********************/
     private void FillPieceLayout() {
         //Fill Image View
-        PieceAdapter pieceAdapter = new PieceAdapter(getApplicationContext(),getStoredPieces());
+        PieceAdapter pieceAdapter = new PieceAdapter(getApplicationContext(), getStoredPieces());
         //pieceAdapter.notifyDataSetChanged();
         pieceLayout.setAdapter(pieceAdapter);
     }
 
-    private void removeImage(View view) {
-        String index = view.getTag().toString();
-        Log.v("image clicked index", String.valueOf(index));
-        Set<Piece> tmp = new HashSet<>();
-        tmp.addAll(pieces);
-        for (Piece p : tmp) {
-            Log.v("clicked index", String.valueOf(index));
-            Log.v("stored index", String.valueOf(p.getIndex()));
-            if (p.getIndex().equals(index)) {
-                pieces.remove(p);
-                storePieces();
-            }
-        }
-        Log.v("piece size 2", String.valueOf(pieces.size()));
+    private void showStoreAlertDialog() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title
+        alertDialogBuilder.setTitle(R.string.store_alert_title);
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage(R.string.store_alert_msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // if this button is clicked, close
+                        // current activity
+                        StoreAlert();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // if this button is clicked, just close
+                        // the dialog box and do nothing
+                        dialog.cancel();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 
     private void LaunchRecord() {
@@ -495,10 +592,11 @@ public class BootActivity extends AppCompatActivity {
 
     private void saveInput() throws NullPointerException {
 
-        if (alert != null && edObject.getText().toString() != "" && edContent.getText().toString() != "") {
+        if (alert != null && edObject.getText().toString().trim().length() != 0 && edContent.getText().toString().trim().length() != 0) {
             alert.setObject(edObject.getText().toString().trim());
             alert.setContent(edContent.getText().toString().trim());
             alert.setCategory(category.getSelectedItem().toString());
+            Log.e("Selected Category", alert.getCategory());
             appController.setPieceList(pieces);
         }
         if (viewPager.getCurrentItem() == 0) {
@@ -617,6 +715,10 @@ public class BootActivity extends AppCompatActivity {
                 .subscribe(location -> {
                     appController.latitude = location.getLatitude();
                     appController.longitude = location.getLongitude();
+
+                    FastSave.getInstance().saveString("lat", String.valueOf(location.getLatitude()));
+                    FastSave.getInstance().saveString("long", String.valueOf(location.getLongitude()));
+
                     Log.v(getLocalClassName(), "LONG:" + location.getLongitude() + "/" + "LAT:" + location.getLatitude());
                     //you've got the location
                 }, throwable -> {
@@ -644,7 +746,6 @@ public class BootActivity extends AppCompatActivity {
             public void onNext(String s) {
                 //Toast.makeText(BootActivity.this, "onNext called: " + s, Toast.LENGTH_SHORT).show();
                 categorielist.add(s);
-
                 Category c = new Category();
                 c.setLabel(s);
                 categoryBox.put(c);
@@ -770,6 +871,7 @@ public class BootActivity extends AppCompatActivity {
             public void onComplete() {
                 Toast.makeText(BootActivity.this, "Piece Sended!", Toast.LENGTH_SHORT).show();
                 showNotification("Piece Sended!");
+                deleteStoredPieces();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

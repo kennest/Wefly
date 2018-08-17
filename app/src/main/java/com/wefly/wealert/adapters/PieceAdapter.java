@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.appizona.yehiahd.fastsave.FastSave;
-import com.orhanobut.hawk.Hawk;
 import com.wefly.wealert.R;
 import com.wefly.wealert.models.Piece;
 
@@ -83,14 +82,14 @@ public class PieceAdapter extends BaseAdapter {
             Log.e("stored index", String.valueOf(p.getIndex()));
             if (p.getIndex().equals(index)) {
                 pieces.remove(p);
+                storePieces();
                 notifyDataSetChanged();
             }
         }
-        storePieces();
         Log.v("piece size 2", String.valueOf(pieces.size()));
     }
 
-    protected void storePieces() {
+    private void storePieces() {
         FastSave.getInstance().saveObjectsList("pieces",pieces);
     }
 

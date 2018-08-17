@@ -18,26 +18,20 @@ import android.util.Log;
 import com.appizona.yehiahd.fastsave.FastSave;
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
-import com.orhanobut.hawk.Hawk;
 import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.activities.onboardActivity;
 import com.wefly.wealert.dbstore.MyObjectBox;
 import com.wefly.wealert.models.Piece;
 import com.wefly.wealert.models.Recipient;
 import com.wefly.wealert.tasks.RecipientGetTask;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-
 import io.objectbox.BoxStore;
 import io.objectbox.android.AndroidObjectBrowser;
 import io.objectbox.android.BuildConfig;

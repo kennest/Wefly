@@ -206,6 +206,7 @@ public class SplashScreensActivity extends FormActivity {
         try {
             CategoryGetTask task = new CategoryGetTask(appController);
             response_category = task.execute().get();
+            appController.setAlert_categories(response_category);
         } catch (InterruptedException | ExecutionException e) {
             EventBus.getDefault().post(new InitDataEmptyEvent(getString(R.string.init_value_missing)));
             e.printStackTrace();

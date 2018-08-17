@@ -20,10 +20,10 @@ public class BootReceiver extends BroadcastReceiver
         Intent serviceIntent = new Intent(context,NavigationService.class);
         Intent serviceOffline = new Intent(context,OfflineService.class);
 
-        Toast.makeText(context, "Startup wefly locate", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Startup WeFly tracking service", Toast.LENGTH_LONG).show();
         context.startService(serviceIntent);
 
-        Toast.makeText(context, "Startup wefly offline", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Startup WeFly offline service", Toast.LENGTH_LONG).show();
         context.startService(serviceOffline);
     }
 }

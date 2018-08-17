@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="113dp"
+    android:layout_width="100dp"
     android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -18,13 +18,12 @@
         android:id="@+id/delete"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:maxHeight="36dp"
-        android:maxWidth="36dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="10dp"
+        android:layout_alignEnd="@+id/piece"
+        android:layout_alignTop="@+id/piece"
         android:background="@color/transparent"
         android:contentDescription="@string/close"
+        android:maxHeight="36dp"
+        android:maxWidth="36dp"
         android:src="@drawable/close_circle"
         tools:layout_editor_absoluteX="285dp"
         tools:layout_editor_absoluteY="47dp" />

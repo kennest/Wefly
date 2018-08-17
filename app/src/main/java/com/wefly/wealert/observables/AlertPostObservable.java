@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.wefly.wealert.events.JsonExceptionEvent;
 import com.wefly.wealert.models.Alert;
 import com.wefly.wealert.utils.AppController;
@@ -48,7 +49,7 @@ public class AlertPostObservable {
     private Boolean process(Alert alert){
         try {
             response = getResponseFromHttpUrl(Constants.SEND_ALERT_URL,alert);
-            Log.v("Alert Sent Response ", response.trim());
+            Log.e("Alert Sent Response ", response.trim());
 
             //Store the response in the sharedPref
             SharedPreferences sp = appController.getSharedPreferences("sent_data", 0);
@@ -73,8 +74,10 @@ public class AlertPostObservable {
             json.put("titre", alert.getObject());
             json.put("contenu", alert.getContent());
             json.put("destinataires", recipientsIDFromPrefs());
-            json.put("longitude", Double.valueOf(appController.longitude));
-            json.put("latitude", Double.valueOf(appController.latitude));
+
+            json.put("longitude", Double.valueOf(FastSave.getInstance().getString("long")));
+            json.put("latitude", Double.valueOf(FastSave.getInstance().getString("lat")));
+
             json.put("date_alerte", new org.joda.time.DateTime(org.joda.time.DateTimeZone.UTC));
 
 
@@ -84,6 +87,7 @@ public class AlertPostObservable {
                     Log.v("Alert CAT", entry.getKey().toString() + ":" + alert.getCategory());
                 json.put("categorie", entry.getValue());
             }
+
             Log.v("ALERT JSON PARAMS", json.toString());
         } catch (JSONException e) {
             EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));

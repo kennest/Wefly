@@ -29,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -46,6 +47,7 @@ import android.widget.Toast;
 import com.appizona.yehiahd.fastsave.FastSave;
 import com.github.florent37.rxgps.RxGps;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.gmail.samehadar.iosdialog.IOSDialog;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.jetradarmobile.rxlocationsettings.RxLocationSettings;
@@ -180,13 +182,7 @@ public class BootActivity extends AppCompatActivity {
         addPicBtn = vForm.findViewById(R.id.addPic);
         edObject = vForm.findViewById(R.id.objectEdText);
         edContent = vForm.findViewById(R.id.contentEdText);
-        alert_loader = findViewById(R.id.alert_loader);
-        piece_loader = findViewById(R.id.piece_loader);
         category = vForm.findViewById(R.id.categorySpinner);
-        alert_loader_content = findViewById(R.id.alert_loader_content);
-        piece_loader_content = findViewById(R.id.piece_loader_content);
-        alert_loader_text = findViewById(R.id.alertloadertext);
-        piece_loader_text = findViewById(R.id.pieceloadertext);
 
         Log.e(getLocalClassName(), "Title txt:" + edObject.getText().toString());
 
@@ -816,11 +812,13 @@ public class BootActivity extends AppCompatActivity {
     }
 
     public void SendRx() {
+        IOSDialog dialog=LoaderProgress("Alert","Sending...");
         if (hasRecipientsID()) {
             Observer mObserver = new Observer<Boolean>() {
                 @Override
                 public void onSubscribe(Disposable d) {
-                    Toast.makeText(BootActivity.this, "Sending Alert...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(BootActivity.this, "Sending Alert...", Toast.LENGTH_SHORT).show();
+                    dialog.show();
                 }
 
                 @Override
@@ -836,6 +834,7 @@ public class BootActivity extends AppCompatActivity {
                 @Override
                 public void onComplete() {
                     showNotification("Alert Sended!");
+                    dialog.dismiss();
                     Toast.makeText(BootActivity.this, "Alert Sended!", Toast.LENGTH_SHORT).show();
                     uploadRx();
                 }
@@ -851,10 +850,12 @@ public class BootActivity extends AppCompatActivity {
     }
 
     private void uploadRx() {
+        IOSDialog dialog=LoaderProgress("Piece","Uploading...");
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {
-                Toast.makeText(BootActivity.this, "Uploading piece...", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(BootActivity.this, "Uploading piece...", Toast.LENGTH_SHORT).show();
+                dialog.show();
             }
 
             @Override
@@ -869,7 +870,8 @@ public class BootActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
-                Toast.makeText(BootActivity.this, "Piece Sended!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(BootActivity.this, "Piece Sended!", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
                 showNotification("Piece Sended!");
                 deleteStoredPieces();
                 new Handler().postDelayed(new Runnable() {
@@ -941,5 +943,17 @@ public class BootActivity extends AppCompatActivity {
 
 //        NotificationManager.notify().
         mNotificationManager.notify(001, mBuilder.build());
+    }
+
+    public IOSDialog LoaderProgress(String title,String content){
+        final IOSDialog dialog0 = new IOSDialog.Builder(BootActivity.this)
+                .setTitle(title)
+                .setMessageContent(content)
+                .setSpinnerColorRes(R.color.primaryDark)
+                .setCancelable(false)
+                .setTitleColorRes(R.color.white)
+                .setMessageContentGravity(Gravity.END)
+                .build();
+        return dialog0;
     }
 }

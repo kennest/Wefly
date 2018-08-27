@@ -19,6 +19,7 @@ import com.gmail.samehadar.iosdialog.IOSDialog;
 import com.wefly.wealert.R;
 import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.dbstore.AlertData;
+import com.wefly.wealert.dbstore.Category;
 import com.wefly.wealert.dbstore.Piece;
 import com.wefly.wealert.models.Recipient;
 import com.wefly.wealert.services.APIClient;
@@ -69,7 +70,7 @@ public class AlertPagerAdapter extends PagerAdapter {
                 list = view.findViewById(R.id.sent_alert_list);
                 //AlertSentListRX();
                 ReactiveNetwork.checkInternetConnectivity()
-                        .subscribeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Consumer<Boolean>() {
                             @Override
@@ -98,7 +99,8 @@ public class AlertPagerAdapter extends PagerAdapter {
             Box<AlertData> Alertbox = AppController.boxStore.boxFor(AlertData.class);
             Box<com.wefly.wealert.dbstore.Recipient> recipientbox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
             Box<com.wefly.wealert.dbstore.Piece> piecebox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Piece.class);
-            List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
+            Box<com.wefly.wealert.dbstore.Category> categoryBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Category.class);
+            List<com.wefly.wealert.services.models.AlertData> remotelist = new ArrayList<>();
 
             @Override
             public void onSubscribe(Disposable disposable) {
@@ -108,8 +110,9 @@ public class AlertPagerAdapter extends PagerAdapter {
 
             @Override
             public void onNext(AlertResponse response) {
+
                 for (com.wefly.wealert.services.models.AlertData x : response.getData()) {
-                    alertDataList.add(x);
+                    remotelist.add(x);
                     AlertData item = new AlertData();
                     item.setContenu(x.getContenu());
                     item.setRaw_id(x.getId());
@@ -121,8 +124,17 @@ public class AlertPagerAdapter extends PagerAdapter {
                     for (AlertDataRecipient r : x.getDestinataires()) {
                         for (com.wefly.wealert.dbstore.Recipient e : recipientbox.getAll()) {
                             if (r.getId() == e.getRaw_id()) {
-                                item.destinataires.add(e);
+                                if(item.destinataires.add(e)){
+                                    Toast.makeText(context, "json recipient added" + e.getRaw_id(), Toast.LENGTH_LONG).show();
+                                }
                             }
+                        }
+                    }
+
+                    for (com.wefly.wealert.dbstore.Category c : categoryBox.getAll()) {
+                        if(c.getLabel().equals(x.getCategory().getNom())){
+                            c.alertData.setTarget(item);
+                            categoryBox.put(c);
                         }
                     }
 
@@ -153,7 +165,7 @@ public class AlertPagerAdapter extends PagerAdapter {
             public void onComplete() {
                 Toast.makeText(context, "Alerts total" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
                 Toast.makeText(context, "Pieces total" + piecebox.getAll().size(), Toast.LENGTH_LONG).show();
-                list.setAdapter(new AlertListAdapter(context, alertDataList));
+                list.setAdapter(new AlertListAdapter(context, remotelist));
             }
         };
 
@@ -166,7 +178,8 @@ public class AlertPagerAdapter extends PagerAdapter {
     }
 
     protected void LocalAlertSentListRX() {
-        List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
+        List<com.wefly.wealert.services.models.AlertData> localList = new ArrayList<>();
+        localList.clear();
         Box<AlertData> alertSentBox = AppController.boxStore.boxFor(AlertData.class);
         for (com.wefly.wealert.dbstore.AlertData r : alertSentBox.getAll()) {
             com.wefly.wealert.services.models.AlertData item = new com.wefly.wealert.services.models.AlertData();
@@ -176,9 +189,9 @@ public class AlertPagerAdapter extends PagerAdapter {
             item.setDate_de_creation(r.getDate_de_creation());
             item.setLatitude(r.getLatitude());
             item.setLongitude(r.getLongitude());
-            alertDataList.add(item);
+            localList.add(item);
         }
-        list.setAdapter(new AlertListAdapter(context, alertDataList));
+        list.setAdapter(new AlertListAdapter(context, localList));
     }
 
 }

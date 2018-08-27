@@ -4,6 +4,7 @@ import io.objectbox.annotation.Backlink;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import io.objectbox.relation.ToMany;
+import io.objectbox.relation.ToOne;
 
 @Entity
 public class AlertData {
@@ -13,6 +14,7 @@ public class AlertData {
     private String titre;
     private String contenu;
 
+    @Backlink
     public ToMany<Recipient> destinataires;
 
     @Backlink

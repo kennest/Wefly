@@ -747,7 +747,7 @@ public class BootActivity extends AppCompatActivity {
     private void restart() {
         Intent intent = getIntent();
         finish();
-        startActivity(intent);
+        startActivity(new Intent(this,AlertListActivity.class));
     }
 
     //Check if Lacation is enabled and launch teask
@@ -947,7 +947,7 @@ public class BootActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        finish();
+                        restart();
                     }
                 }, 1000);
             }

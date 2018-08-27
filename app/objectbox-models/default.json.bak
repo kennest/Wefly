@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:1183971723583506840",
-      "lastPropertyId": "3:5875242667660763243",
+      "lastPropertyId": "4:7997086744209777282",
       "name": "Category",
       "properties": [
         {
@@ -19,6 +19,11 @@
         {
           "id": "3:5875242667660763243",
           "name": "label"
+        },
+        {
+          "id": "4:7997086744209777282",
+          "indexId": "3:2070983028502280106",
+          "name": "alertDataId"
         }
       ],
       "relations": []
@@ -213,16 +218,12 @@
         {
           "id": "5:8794819625712814598",
           "name": "destinataires"
-        },
-        {
-          "id": "6:108782649678727647",
-          "name": "pieces"
         }
       ]
     }
   ],
   "lastEntityId": "8:7365862290465380402",
-  "lastIndexId": "2:9094933400076075367",
+  "lastIndexId": "3:2070983028502280106",
   "lastRelationId": "6:108782649678727647",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
@@ -231,7 +232,8 @@
   "retiredIndexUids": [],
   "retiredPropertyUids": [],
   "retiredRelationUids": [
-    6837602821664155835
+    6837602821664155835,
+    108782649678727647
   ],
   "version": 1
 }

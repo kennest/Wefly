@@ -2,6 +2,7 @@ package com.wefly.wealert.dbstore;
 
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
+import io.objectbox.relation.ToOne;
 
 @Entity
 public class Recipient {
@@ -10,6 +11,8 @@ public class Recipient {
     private int raw_id;
     private String username;
     private String avatar;
+
+    public ToOne<AlertData> alertdata;
 
     public int getRaw_id() {
         return raw_id;

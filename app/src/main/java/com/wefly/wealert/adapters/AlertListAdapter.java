@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.wefly.wealert.R;
 import com.wefly.wealert.dbstore.AlertData_;
 import com.wefly.wealert.dbstore.Piece;
+import com.wefly.wealert.dbstore.Recipient;
 import com.wefly.wealert.services.models.AlertData;
 import com.wefly.wealert.utils.AppController;
 
@@ -95,8 +96,11 @@ public class AlertListAdapter extends BaseAdapter {
                    for (Piece x : n.pieces) {
                        Toast.makeText(context, "Piece url:" + x.getUrl(), Toast.LENGTH_LONG).show();
                    }
-               }
 
+                   for(Recipient r:n.destinataires){
+                       Toast.makeText(context, "Alert Recipient:" + r.getUsername(), Toast.LENGTH_LONG).show();
+                   }
+               }
             }
         });
 

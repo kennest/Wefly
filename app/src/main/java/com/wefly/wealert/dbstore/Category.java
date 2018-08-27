@@ -2,6 +2,7 @@ package com.wefly.wealert.dbstore;
 
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
+import io.objectbox.relation.ToOne;
 
 @Entity
 public class Category {
@@ -10,6 +11,8 @@ public class Category {
 
     private int raw_id;
     private String label;
+
+    public ToOne<AlertData> alertData;
 
     public int getRaw_id() {
         return raw_id;

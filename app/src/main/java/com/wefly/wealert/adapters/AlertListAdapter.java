@@ -56,9 +56,8 @@ public class AlertListAdapter extends BaseAdapter {
         AlertData item=dataList.get(i);
         image.setImageResource(R.drawable.add_pic);
         title.setText(item.getTitre());
-        if(item.getContenu().length()>25) {
-            item.getContenu().substring(0,25);
-            content.setText(item.getContenu()+"...");
+        if(item.getContenu().length()>35) {
+            content.setText(item.getContenu().substring(0,35)+"...");
         }else{
             content.setText(item.getContenu());
         }

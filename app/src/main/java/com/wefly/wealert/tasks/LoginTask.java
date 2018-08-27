@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.wefly.wealert.presenters.BaseActivity;
 import com.wefly.wealert.presenters.TaskPresenter;
 import com.wefly.wealert.utils.Constants;
@@ -102,6 +103,9 @@ public class LoginTask extends TaskPresenter {
             if (isOk) {
                 token = new JSONObject(response)
                         .getString("token");
+
+                FastSave.getInstance().saveString("token","JWT "+token);
+
                 Save.defaultSaveString(Constants.PREF_TOKEN, token, act);
                 Save.defaultSaveString(Constants.PREF_USER_NAME, uName, act);
                 Save.defaultSaveString(Constants.PREF_USER_PASSWORD, uPword, act);

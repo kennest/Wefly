@@ -2,10 +2,6 @@
 <resources>
 
     <!-- Defaults -->
-    <dimen name="activity_horizontal_margin">64dp</dimen>
-    <dimen name="activity_detail_horizontal_margin">64dp</dimen>
-    <dimen name="activity_detail_horizontal_margin_spinner">52dp</dimen>
 
     <!--for categoey item-->
-    <dimen name="activity_detail_horizontal_margin_custo">24dp</dimen>
 </resources>

@@ -1,5 +1,6 @@
 package com.wefly.wealert.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -53,6 +54,7 @@ public class RecipientAdapter extends BaseAdapter {
         return 0;
     }
 
+    @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = inflater.inflate(R.layout.recipient_item, parent, false);
@@ -83,12 +85,14 @@ public class RecipientAdapter extends BaseAdapter {
             //Snackbar.make(v, "LIST SIZE 0" +recipient_ids.size()+ " recipient(s)!", Snackbar.LENGTH_SHORT).show();
 
             String recipient_id = String.valueOf(((Recipient) v.getTag()).getRecipientId());
+
             if (recipient_ids.add(recipient_id)) {
                 v.setBackgroundColor(Color.parseColor("#306800"));
             } else {
                 recipient_ids.remove(recipient_id);
                 v.setBackgroundColor(Color.parseColor("#000000"));
             }
+
             sp.edit().putStringSet("recipients_id", recipient_ids).apply();
 
             //DEBUG

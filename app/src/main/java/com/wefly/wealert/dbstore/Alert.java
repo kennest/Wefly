@@ -1,6 +1,5 @@
 package com.wefly.wealert.dbstore;
 
-import io.objectbox.annotation.Backlink;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import io.objectbox.relation.ToMany;
@@ -10,10 +9,11 @@ public class Alert {
     @Id private long id;
     private String title;
     private String content;
-    private int category;
-    private String recipientsID;
-
+    private String category;
     public ToMany<Piece> pieces;
+    public ToMany<OtherRecipient> otherRecipients;
+    public ToMany<Recipient> recipients;
+
     public Alert() {
     }
 
@@ -41,19 +41,12 @@ public class Alert {
         this.content = content;
     }
 
-    public int getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(int category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
-    public String getRecipientsID() {
-        return recipientsID;
-    }
-
-    public void setRecipientsID(String recipientsID) {
-        this.recipientsID = recipientsID;
-    }
 }

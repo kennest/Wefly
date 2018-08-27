@@ -49,23 +49,20 @@ public class PieceAdapter extends BaseAdapter {
         view = inflater.inflate(R.layout.piece_item, parent, false);
         ImageView image = view.findViewById(R.id.piece);
         ImageButton btnDel = view.findViewById(R.id.delete);
-
         if (pieces.size() > 0) {
             Piece p = pieces.get(i);
-            if (p.getExtension(p.getUrl()).matches(".m4a")) {
-                image.setImageResource(R.drawable.microphone);
-            } else {
-                image.setImageURI(Uri.fromFile(new File(p.getUrl().trim())));
+            if(!p.getUrl().isEmpty()) {
+                if (p.getExtension(p.getUrl()).matches(".m4a")) {
+                    image.setImageResource(R.drawable.microphone);
+                } else {
+                    image.setImageURI(Uri.fromFile(new File(p.getUrl().trim())));
+                }
             }
-
             //Log.e("piece content uri", p.getContentUrl().toString());
-
             image.setTag(p.getIndex());
             image.setPadding(5, 5, 15, 5);
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
             btnDel.setTag(p.getIndex());
-
             btnDel.setOnClickListener(view1 -> {
                 removeImage(view1);
             });

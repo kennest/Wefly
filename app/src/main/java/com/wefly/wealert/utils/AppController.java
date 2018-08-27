@@ -14,27 +14,44 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.appizona.yehiahd.fastsave.FastSave;
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
 import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.activities.onboardActivity;
+import com.wefly.wealert.adapters.AlertListAdapter;
+import com.wefly.wealert.dbstore.AlertData;
 import com.wefly.wealert.dbstore.MyObjectBox;
 import com.wefly.wealert.models.Piece;
 import com.wefly.wealert.models.Recipient;
+import com.wefly.wealert.services.APIClient;
+import com.wefly.wealert.services.APIService;
+import com.wefly.wealert.services.models.AlertResponse;
+import com.wefly.wealert.services.models.EmployeId;
 import com.wefly.wealert.tasks.RecipientGetTask;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.android.AndroidObjectBrowser;
 import io.objectbox.android.BuildConfig;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -57,14 +74,14 @@ public class AppController extends Application {
     public Double latitude;
     public Double longitude;
     public static BoxStore boxStore;
-    Context context;
+    List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
 
     public List<Recipient> getRecipients() {
         return recipients;
     }
 
     public void setRecipients(List<Recipient> recipients) {
-        this.recipients=recipients;
+        this.recipients = recipients;
     }
 
     public CopyOnWriteArrayList<Recipient> getRecipientsList() {
@@ -99,7 +116,7 @@ public class AppController extends Application {
             Log.i("ObjectBrowser", "Started: " + started);
         }
         FastSave.init(getApplicationContext());
-
+        getEmployeID();
 
         //GET RECIPIENTS LIST
         try {
@@ -125,7 +142,7 @@ public class AppController extends Application {
         System.exit(0);
     }
 
-    public void reloadApp(){
+    public void reloadApp() {
         Intent intent = new Intent(getApplicationContext(), BootActivity.class);
         int mPendingIntentId = 320;
         PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), mPendingIntentId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -134,7 +151,7 @@ public class AppController extends Application {
         System.exit(0);
     }
 
-    public void quitApp(){
+    public void quitApp() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
     }
@@ -234,6 +251,39 @@ public class AppController extends Application {
         }
     }
 
+    public int getEmployeID() {
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<EmployeId> observable = service.CurrentEmployeId("JWT " + getToken(), getUserId());
+        observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(new Observer<EmployeId>() {
+
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onNext(EmployeId emp) {
+                        Log.e("JSON ID", "" + emp.getId());
+                        FastSave.getInstance().saveInt("user_id", emp.getId());
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        return FastSave.getInstance().getInt("user_id");
+    }
+
 
     //Verifie si le reseau est disponible
     public boolean isNetworkAvailable() {
@@ -314,4 +364,50 @@ public class AppController extends Application {
         this.alert_categories = alert_categories;
     }
 
+    protected void AlertSentListRX() {
+        Observer mObserver = new Observer<AlertResponse>() {
+            Box<AlertData> Alertbox = AppController.boxStore.boxFor(AlertData.class);
+            List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
+
+            @Override
+            public void onSubscribe(Disposable disposable) {
+                Alertbox.removeAll();
+            }
+
+            @Override
+            public void onNext(AlertResponse response) {
+                for (com.wefly.wealert.services.models.AlertData x : response.getData()) {
+                    alertDataList.add(x);
+                    for (com.wefly.wealert.services.models.AlertData d : response.getData()) {
+                        AlertData item = new AlertData();
+                        item.setContenu(d.getContenu());
+                        item.setTitre(d.getTitre());
+                        item.setDate_de_creation(d.getDate_de_creation());
+                        item.setLatitude(d.getLatitude());
+                        item.setLongitude(d.getLongitude());
+                        Alertbox.put(item);
+                        Toast.makeText(getApplicationContext(), "ALert count" + Alertbox.count(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(getApplicationContext(), "OBS error" + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("OBS error: ", e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(getApplicationContext(), "ALert count" + Alertbox.count(), Toast.LENGTH_LONG).show();
+            }
+        };
+
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<AlertResponse> observable = service.AlertSentList("JWT " + getToken());
+        observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mObserver);
+    }
 }

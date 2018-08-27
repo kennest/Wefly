@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AlertData {
 
@@ -17,15 +18,35 @@ public class AlertData {
 
     @SerializedName("destinataires")
     @Expose
-    private ArrayList destinataires;
+    private List<AlertDataRecipient> destinataires;
 
     @SerializedName("id")
     @Expose
     private int id;
 
+    @SerializedName("lat")
+    @Expose
+    private Double latitude;
+
+    @SerializedName("long")
+    @Expose
+    private Double longitude;
+
     @SerializedName("date_de_creation")
     @Expose
     private String date_de_creation;
+
+    @SerializedName("piece_join_alerte")
+    @Expose
+    public List<Piece> pieces=new ArrayList<>();
+
+    public List<Piece> getPieces() {
+        return pieces;
+    }
+
+    public void setPieces(List<Piece> pieces) {
+        this.pieces = pieces;
+    }
 
     public String getTitre() {
         return titre;
@@ -43,14 +64,6 @@ public class AlertData {
         this.contenu = contenu;
     }
 
-    public ArrayList getDestinataires() {
-        return destinataires;
-    }
-
-    public void setDestinataires(ArrayList destinataires) {
-        this.destinataires = destinataires;
-    }
-
     public int getId() {
         return id;
     }
@@ -65,5 +78,29 @@ public class AlertData {
 
     public void setDate_de_creation(String date_de_creation) {
         this.date_de_creation = date_de_creation;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public List<AlertDataRecipient> getDestinataires() {
+        return destinataires;
+    }
+
+    public void setDestinataires(List<AlertDataRecipient> destinataires) {
+        this.destinataires = destinataires;
     }
 }

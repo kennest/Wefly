@@ -1,30 +1,23 @@
 package com.wefly.wealert.adapters;
 
 import android.content.Context;
-
 import android.content.SharedPreferences;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-
 import com.wefly.wealert.models.Alert;
 import com.wefly.wealert.models.Piece;
-import com.wefly.wealert.tasks.CategoryGetTask;
 import com.wefly.wealert.utils.AppController;
-import com.wefly.wealert.R;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class ViewPagerAdapter extends PagerAdapter {
     private Context context;

@@ -18,8 +18,11 @@ public class APIClient {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
+        //String base_url="http://192.168.1.75:8000/";
+        String base_url="http://178.33.130.196:8000/";
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://217.182.133.143:8000/")
+                .baseUrl(base_url)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)

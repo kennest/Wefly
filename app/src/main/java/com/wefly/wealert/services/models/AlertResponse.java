@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlertResponse extends BaseResponse {
-
     @SerializedName("next")
     @Expose
     private String next;

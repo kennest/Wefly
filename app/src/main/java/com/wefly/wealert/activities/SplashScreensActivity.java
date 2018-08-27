@@ -1,5 +1,6 @@
 package com.wefly.wealert.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.RelativeLayout;
 
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.wefly.wealert.events.InitDataEmptyEvent;
 import com.wefly.wealert.models.Recipient;
 import com.wefly.wealert.presenters.FormActivity;
@@ -26,9 +28,11 @@ import com.wefly.wealert.R;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -157,7 +161,7 @@ public class SplashScreensActivity extends FormActivity {
                     watcher.setOnOffLineListener(new NetworkWatcher.OnOffLineListener() {
                         @Override
                         public void onOffLine() {
-                            startActivity(new Intent(SplashScreensActivity.this, BootActivity.class));
+                            startActivity(new Intent(SplashScreensActivity.this, AlertListActivity.class));
                             finish();
                         }
 
@@ -169,7 +173,7 @@ public class SplashScreensActivity extends FormActivity {
 
                             });
                             presenter.downloadAllRecipients(false);
-                            startActivity(new Intent(SplashScreensActivity.this, BootActivity.class));
+                            startActivity(new Intent(SplashScreensActivity.this, AlertListActivity.class));
                             finish();
                         }
                     });
@@ -207,6 +211,7 @@ public class SplashScreensActivity extends FormActivity {
             CategoryGetTask task = new CategoryGetTask(appController);
             response_category = task.execute().get();
             appController.setAlert_categories(response_category);
+            saveMap("categories_map",response_category);
         } catch (InterruptedException | ExecutionException e) {
             EventBus.getDefault().post(new InitDataEmptyEvent(getString(R.string.init_value_missing)));
             e.printStackTrace();
@@ -223,5 +228,37 @@ public class SplashScreensActivity extends FormActivity {
         if(recipients.size()<=0 || response_category.size()<=0){
             EventBus.getDefault().post(new InitDataEmptyEvent(getString(R.string.init_value_missing)));
         }
+    }
+
+    protected void saveMap(String key, Map<String,Integer> inputMap){
+        SharedPreferences pSharedPref =getSharedPreferences("settings", Context.MODE_PRIVATE);
+        if (pSharedPref != null){
+            JSONObject jsonObject = new JSONObject(inputMap);
+            String jsonString = jsonObject.toString();
+            SharedPreferences.Editor editor = pSharedPref.edit();
+            editor.remove(key).apply();
+            editor.putString(key, jsonString);
+            editor.commit();
+        }
+    }
+
+    private Map<String,Integer> loadMap(String key){
+        Map<String,Integer> outputMap = new HashMap<String,Integer>();
+        SharedPreferences pSharedPref = getSharedPreferences("settings", Context.MODE_PRIVATE);
+        try{
+            if (pSharedPref != null){
+                String jsonString = pSharedPref.getString(key, (new JSONObject()).toString());
+                JSONObject jsonObject = new JSONObject(jsonString);
+                Iterator<String> keysItr = jsonObject.keys();
+                while(keysItr.hasNext()) {
+                    String k = keysItr.next();
+                    Integer v = (Integer) jsonObject.get(k);
+                    outputMap.put(k,v);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return outputMap;
     }
 }

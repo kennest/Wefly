@@ -4,46 +4,21 @@
     <color name="colorPrimary">#306800</color>
     <color name="colorPrimaryDark">#133A00</color>
     <color name="colorAccent">#4f7f26</color>
-    <color name="colorAccentSecondary">#6e954d</color>
 
     <color name="colorTitleGreen">#306800</color>
     <color name="colorTitleGray">#9B9B9B</color>
-    <color name="input_black">#FFEDEDED</color>
-    <color name="gray_special">#D4D4D4</color>
     <color name="gray_two">#999999</color>
 
 
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
-    <color name="black_two">#4A4A4A</color>
-    <color name="black_grey_color">#FFE1E2E1</color>
     <color name="green_two">#306800</color>
 
     <!--to Del-->
     <color name="transparent">#00000000</color>
-    <color name="white_20">#33FFFFFF</color>
-    <color name="icon_enabled">#FFFFFFFF</color>
-    <color name="icon_disabled">#FF63727B</color>
 
 
     <!--Circle Rounded Button-->
-    <color name="colorTransparentAccent">#6669f0ae</color>
-    <color name="colorTintAccent">#fc0e6139</color>
-    <color name="colorButtonLeft">#ffd800</color>
-    <color name="colorButtonRight">#306700</color>
-    <color name="colorFabStart">#306800</color>
-    <color name="colorFabEnd">#d6c401</color>
-    <color name="colorEditTextInput">#517a00</color>
-    <color name="colorDrawerBg">#fafafa</color>
 
-    <color name="main_color_grey_500">@color/material_grey_500</color>
     <color name="main_color_grey_50">@color/material_grey_50</color>
-    <color name="main_color_grey_100">@color/material_grey_100</color>
-    <color name="main_color_grey_200">@color/material_grey_200</color>
-    <color name="main_color_grey_300">@color/material_grey_300</color>
-    <color name="main_color_grey_400">@color/material_grey_400</color>
-    <color name="main_color_grey_600">@color/material_grey_600</color>
-    <color name="main_color_grey_700">@color/material_grey_700</color>
-    <color name="main_color_grey_800">@color/material_grey_800</color>
-    <color name="main_color_grey_900">@color/material_grey_900</color>
 </resources>

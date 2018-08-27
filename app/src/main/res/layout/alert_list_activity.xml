@@ -1,33 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerlayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/img_background"
+    android:fitsSystemWindows="true"
+    tools:context="com.wefly.wealert.activities.AlertListActivity">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="0dp"
+    <nl.psdcompany.duonavigationdrawer.views.DuoMenuView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sidemenu"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/alertpager"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabGravity="center"></android.support.design.widget.TabLayout>
+        android:tag="@string/tag_menu"
+        app:background="@drawable/img_background"
+        app:menuAlphaClosed="0.0"
+        app:menuAlphaOpen="1.0" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/alertpager"
-        android:layout_width="368dp"
-        android:layout_height="509dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:tag="content">
 
-    </android.support.v4.view.ViewPager>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:titleTextColor="@color/white">
 
-</android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.Toolbar>
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@color/white"
+                app:tabGravity="center">
+
+            </android.support.design.widget.TabLayout>
+
+            <RelativeLayout
+                android:id="@+id/tab_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tab_layout">
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/alertpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp">
+
+                </android.support.v4.view.ViewPager>
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/new_alert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginBottom="18dp"
+                    android:layout_marginEnd="32dp"
+                    android:backgroundTint="@color/white"
+                    android:clickable="true"
+                    app:srcCompat="@drawable/add_pic"
+                    tools:layout_editor_absoluteX="8dp"
+                    tools:layout_editor_absoluteY="54dp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+</nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout>

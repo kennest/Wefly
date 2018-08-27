@@ -28,21 +28,23 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PieceUploadObservable {
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final String url=Constants.SEND_FILE_URL;
     private AppController appController=AppController.getInstance();
     private String prefresponse;
 
-    public Observable<Boolean> upload(List<Piece> pieces, Alert alert){
-        return Observable.fromCallable(()-> process(pieces,alert));
+    public Observable<Boolean> upload(List<Piece> pieces){
+        return Observable.fromCallable(()-> process(pieces));
     }
 
-    private Boolean process(List<Piece>pieces,Alert alert){
+    private Boolean process(List<Piece>pieces){
+
         try {
             SharedPreferences sp = appController.getSharedPreferences("sent_data", 0);
             prefresponse = sp.getString("sent_response", "NO DATA IN PREFS");
             if (pieces.size() > 0)
                 for (Piece p : pieces) {
-                    uploadPiece(p, "PJ_" + System.nanoTime(), Constants.SEND_FILE_URL,alert);
+                    uploadPiece(p, "PJ_" + System.nanoTime(), url);
                 }
         } catch (IOException e) {
             EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));
@@ -52,7 +54,7 @@ public class PieceUploadObservable {
         return true;
     }
 
-    private String uploadPiece(@Nullable Piece piece, @Nullable String pieceName, @Nullable String url, @NonNull Alert alert) throws IOException {
+    private String uploadPiece(@Nullable Piece piece, @Nullable String pieceName, @Nullable String url) throws IOException {
         Response response;
         Integer id = 0;
         Log.v("PREFS SENT DATA", prefresponse);
@@ -73,10 +75,9 @@ public class PieceUploadObservable {
             //Init Json data
             dataJson.put("piece_name", pieceName + piece.getExtension(piece.getUrl()));
             dataJson.put("piece_b64", encodedPiece.trim());
-            if (alert != null) {
-                dataJson.put("alerte", id);
-                dataJson.put("email", null);
-            }
+            dataJson.put("alerte", id);
+            dataJson.put("email", null);
+
 
             Log.v("PieceUploadTask params", dataJson.toString());
             Log.v("Piece path", piece.getExtension(piece.getUrl()));

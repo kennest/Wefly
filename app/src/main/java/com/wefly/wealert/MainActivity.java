@@ -40,7 +40,7 @@ public class MainActivity extends DBActivity {
 
 
         // Setup custom tab
-        ViewGroup tab = findViewById(R.id.tab);
+        ViewGroup tab = findViewById(R.id.tab_layout);
         //tab.addView(LayoutInflater.from(this).inflate(R.layout.fragment_main, tab, false));
 
         ViewPager viewPager = findViewById(R.id.viewpager);

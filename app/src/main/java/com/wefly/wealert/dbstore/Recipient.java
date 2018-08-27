@@ -42,4 +42,5 @@ public class Recipient {
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
+
 }

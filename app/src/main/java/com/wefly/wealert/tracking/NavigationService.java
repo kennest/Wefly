@@ -19,10 +19,16 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.appizona.yehiahd.fastsave.FastSave;
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ConnectivityPredicate;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.google.gson.JsonObject;
+import com.wefly.wealert.services.APIClient;
+import com.wefly.wealert.services.APIService;
+import com.wefly.wealert.services.models.EmployeId;
 import com.wefly.wealert.utils.AppController;
 
 import org.json.JSONArray;
@@ -38,8 +44,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -58,13 +68,14 @@ public class NavigationService extends Service implements LocationListener {
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     //    long notify_interval = 5000;
-    long notify_interval = 600000; //Chaque 5 min
+    long notify_interval = 10000; //Chaque 5 min
     public static String str_receiver = "servicetutorial.service.receiver";
     Intent intent;
     private String USERID_PREF_NAME = "userCredential";
     private String CURRENT_REPPORT_PREF_NAME = "currentRepports";
     private String REPORT_FILE_PREF_NAME = "repportFile";
     int time = 0;
+    int user_id;
 
     public NavigationService() {
 
@@ -81,6 +92,7 @@ public class NavigationService extends Service implements LocationListener {
     public void onCreate() {
         super.onCreate();
         mTimer = new Timer();
+        Log.e("token","JWT "+AppController.getInstance().getToken());
         mTimer.schedule(new TimerTaskToGetLocation(), 1, notify_interval);
         intent = new Intent(str_receiver);
     }
@@ -193,7 +205,7 @@ public class NavigationService extends Service implements LocationListener {
 
         Log.e("heure", currentHour + "");
         AppController appController=AppController.getInstance();
-        String userId = appController.getUserId();
+        int userId = FastSave.getInstance().getInt("user_id");
         Log.e("userid", userId + "");
         SharedPreferences sharedPreferences = getSharedPreferences("settings", 0);
 
@@ -252,12 +264,13 @@ public class NavigationService extends Service implements LocationListener {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            } else {
+            }
+            else {
                 locations.put(locate);
                 // On crée un nouveau repport à partir des nouvelles données
                 JSONObject report = new JSONObject();
                 try {
-                    report.put("Userid", userId);
+                    report.put("Userid",userId);
                     report.put("Date", currentTime);
                     report.put("period",work_range);
                     report.put("gmt", localTime);
@@ -348,7 +361,6 @@ public class NavigationService extends Service implements LocationListener {
 
         File rf = new File("/data/data/com.wefly.wealert/shared_prefs/repportFile.xml");
         if (rf.exists()) {
-
             ReactiveNetwork.observeInternetConnectivity()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -368,5 +380,39 @@ public class NavigationService extends Service implements LocationListener {
         intent.putExtra("latutide", location.getLatitude() + "");
         intent.putExtra("longitude", location.getLongitude() + "");
         sendBroadcast(intent);
+    }
+
+    private int getUserID(){
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<EmployeId> observable=service.CurrentEmployeId("JWT "+AppController.getInstance().getToken(),AppController.getInstance().getUserId());
+        observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(new Observer<EmployeId>() {
+
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onNext(EmployeId emp) {
+                        Log.e("JSON ID",""+emp.getId());
+                        FastSave.getInstance().saveInt("user_id",emp.getId());
+                        user_id=emp.getId();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        return user_id;
     }
 }

@@ -54,6 +54,7 @@ public class SendRepportsTask extends AsyncTask<Void, Integer, Void> {
                 File rf = new File(
                         "/data/data/com.wefly.wealert/shared_prefs/repportFile.xml");
                 rf.delete();
+                sendNotification();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,24 +67,18 @@ public class SendRepportsTask extends AsyncTask<Void, Integer, Void> {
      */
     @Override
     protected void onPostExecute(final Void result) {
-        sendNotification();
+
     }
 
     public void sendNotification() {
-
         //Get an instance of NotificationManager//
-
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mcontext)
                         .setSmallIcon(R.drawable.ic_logo)
                         .setContentTitle("Wefly locate")
                         .setContentText(response);
-
-
         // Gets an instance of the NotificationManager service//
-
         NotificationManager mNotificationManager = (NotificationManager) mcontext.getSystemService(Context.NOTIFICATION_SERVICE);
-
         // When you issue multiple notifications about the same type of event,
         // it’s best practice for your app to try to update an existing notification
         // with this new information, rather than immediately creating a new notification.

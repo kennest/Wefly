@@ -1,21 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="options_array">
-        <item>@string/terms</item>
-        <item>@string/policy</item>
-        <item>@string/about</item>
-        <item>@string/quit</item>
-    </string-array>
-
-    <string-array name="language_values_array">
-        <item>EN</item>
-        <item>FR</item>
-        <item>DE</item>
-    </string-array>
-
-    <string-array name="unit_type_array">
-        <item>Metric</item>
-        <item>Imperial</item>
-    </string-array>
 
 </resources>

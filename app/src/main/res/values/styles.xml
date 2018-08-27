@@ -16,27 +16,6 @@
         <item name="android:textColor">@color/gray_two</item>
     </style>
 
-    <style name="ThemeWithActionBar" parent="MainTheme">
-        <item name="windowNoTitle">false</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionBar">true</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="SplashTheme" parent="MainTheme">
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-    </style>
-
-
-    <style name="CircleEditTextStyleSimple" parent="@android:style/TextAppearance.Widget.EditText">
-        <item name="android:maxLines">1</item>
-        <item name="android:height">28dp</item>
-        <item name="android:layout_height">38dp</item>
-        <item name="android:layout_width">match_parent</item>
-    </style>
 
     <style name="CircleEditTextStyle" parent="@android:style/TextAppearance.Widget.EditText">
         <item name="android:background">@android:color/transparent</item>
@@ -64,23 +43,6 @@
     </style>
 
     <!-- Clean Usage of listTitle -->
-    <style name="listTitleStyle">
-        <item name="android:lineSpacingExtra">1dp</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:textDirection">locale</item>
-    </style>
-
-    <style name="CategoryStyle">
-        <item name="android:inputType">textCapSentences</item>
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">false</item>
-    </style>
-
-    <style name="RecipientsStyle">
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">false</item>
-    </style>
 
     <style name="ObjectStyle">
         <item name="android:inputType">textCapSentences</item>
@@ -93,123 +55,16 @@
         <item name="android:autoLink">all</item>
     </style>
 
-    <style name="EmailStyle">
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">true</item>
-        <item name="android:autoLink">all</item>
-        <item name="android:inputType">textEmailAddress</item>
-    </style>
-
-    <style name="AttachementStyle">
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">false</item>
-    </style>
-
-    <style name="SenderStyle">
-        <item name="android:inputType">textCapSentences</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">false</item>
-    </style>
-
-    <style name="FromStyle">
-        <item name="android:maxLines">@integer/max_lines</item>
-        <item name="android:linksClickable">false</item>
-    </style>
-
-    <style name="BottomMenuStyle">
-        <item name="android:layout_marginTop">@dimen/linear_bottom_size</item>
-    </style>
-
-
-    <style name="SpinnerTheme" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:spinnerItemStyle">@style/CircleSpinnerStyle</item>
-    </style>
-
-
-    <style name="CircleSpinnerStyle" parent="@android:style/TextAppearance.Widget.TextView.SpinnerItem">
-        <item name="android:maxLines">1</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:textColor">@color/gray_two</item>
-        <item name="android:textSize">@dimen/item_title_size</item>
-    </style>
-
-    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:textColor">@color/gray_two</item>
-    </style>
 
     <!--fix create_alert margin spinner padding issue-->
 
-    <style name="SpinnerCustomStyle" parent="">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:textColor">@color/gray_two</item>
-    </style>
-
 
     <!--To Delete-->
-    <style name="SpinnerCustomTheme" parent="@android:style/Widget.Holo.DropDownItem.Spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:spinnerItemStyle">@style/CircleSpinnerCustomStyle</item>
-    </style>
 
-
-    <style name="CircleSpinnerCustomStyle" parent="@android:style/Widget.Holo.TextView.SpinnerItem">
-        <item name="android:maxLines">1</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:textColor">@color/gray_two</item>
-        <item name="android:textSize">@dimen/item_title_size</item>
-    </style>
 
     <style name="MainTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="MainTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="MainTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="NumberProgressBar_Custom">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">match_parent</item>
-
-        <item name="progress_max">100</item>
-        <item name="progress_current">0</item>
-
-        <item name="progress_unreached_color">#CCCCCC</item>
-        <item name="progress_reached_color">@color/colorPrimary</item>
-
-        <item name="progress_text_size">10sp</item>
-        <item name="progress_text_color">@color/colorPrimary</item>
-
-        <item name="progress_reached_bar_height">1.5dp</item>
-        <item name="progress_unreached_bar_height">0.75dp</item>
-    </style>
-
-    <style name="ActionBarThemeOverlayCustom" parent="">
-        <item name="android:textColorPrimary">@android:color/black</item>
-        <item name="colorControlNormal">@android:color/black</item>
-        <item name="colorControlHighlight">#00ffffff</item>
-    </style>
-
-    <style name="DialogFragmentTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

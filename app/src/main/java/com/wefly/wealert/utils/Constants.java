@@ -12,7 +12,8 @@ public class Constants {
 
     // BASE
     //public static final String BASE_URL = "http://192.168.1.66:8000/";
-    public static final String BASE_URL = "http://217.182.133.143:8000/";
+    public static final String BASE_URL = "http://178.33.130.196:8000/";
+    //public static final String BASE_URL = "http://192.168.1.75:8000/";
 
     // GET
     public static final String LOGIN_URL = BASE_URL + "login/";

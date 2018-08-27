@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -18,7 +19,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -85,6 +88,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -102,6 +106,8 @@ import nl.psdcompany.duonavigationdrawer.views.DuoMenuView;
 import nl.psdcompany.duonavigationdrawer.widgets.DuoDrawerToggle;
 import rx.functions.Action1;
 
+import static android.support.v4.graphics.TypefaceCompatUtil.getTempFile;
+
 public class BootActivity extends AppCompatActivity {
     AppController appController = AppController.getInstance();
     private static List<Piece> pieces = new ArrayList<>();
@@ -116,15 +122,12 @@ public class BootActivity extends AppCompatActivity {
     private ImageButton addPicBtn;
     private EditText edObject, edContent;
     static ViewPager viewPager;
-    CircularProgressIndicator alert_loader;
     CircularProgressIndicator piece_loader;
-    static LinearLayout alert_loader_content;
     static LinearLayout piece_loader_content;
-    static TextView alert_loader_text;
-    static TextView piece_loader_text;
     Toolbar toolbar;
     Spinner category;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onStart() {
@@ -346,6 +349,45 @@ public class BootActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
+
+//        Intent chooser = getPickImageIntent(getApplicationContext());
+//        if (chooser.resolveActivity(getPackageManager()) != null) {
+//            startActivityForResult(chooser, PICK_IMAGE_REQUEST);
+//        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    public static Intent getPickImageIntent(Context context) {
+        Intent chooserIntent = null;
+
+        List<Intent> intentList = new ArrayList<>();
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePhotoIntent.putExtra("return-data", true);
+        takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getTempFile(context)));
+        intentList = addIntentsToList(context, intentList, pickIntent);
+        intentList = addIntentsToList(context, intentList, takePhotoIntent);
+
+        if (intentList.size() > 0) {
+            chooserIntent = Intent.createChooser(intentList.remove(intentList.size() - 1),
+                    context.getString(R.string.pick_image_intent_text));
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentList.toArray(new Parcelable[]{}));
+        }
+
+        return chooserIntent;
+    }
+
+    private static List<Intent> addIntentsToList(Context context, List<Intent> list, Intent intent) {
+        List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : resInfo) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            Intent targetedIntent = new Intent(intent);
+            targetedIntent.setPackage(packageName);
+            list.add(targetedIntent);
+        }
+        return list;
     }
 
     private void galleryAddPic(String path) {
@@ -439,7 +481,7 @@ public class BootActivity extends AppCompatActivity {
         Log.e(getLocalClassName(), "back pressed");
         storePieces();
         pieceLayout.invalidateViews();
-        dispatchTakePictureIntent();
+        //dispatchTakePictureIntent();
     }
 
     @Override
@@ -548,7 +590,6 @@ public class BootActivity extends AppCompatActivity {
 
     private void showStoreAlertDialog() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
         // set title
         alertDialogBuilder.setTitle(R.string.store_alert_title);
 
@@ -561,6 +602,8 @@ public class BootActivity extends AppCompatActivity {
                         // if this button is clicked, close
                         // current activity
                         StoreAlert();
+                        deleteStoredPieces();
+                        restart();
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -612,13 +655,36 @@ public class BootActivity extends AppCompatActivity {
         Box<com.wefly.wealert.dbstore.Alert> box = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Alert.class);
         com.wefly.wealert.dbstore.Alert a = new com.wefly.wealert.dbstore.Alert();
         com.wefly.wealert.dbstore.Piece piece = new com.wefly.wealert.dbstore.Piece();
-        a.setTitle(alert.getObject());
-        a.setContent(alert.getContent());
+
+        SharedPreferences sp = getSharedPreferences("recipients", 0);
+        Set recipient_ids = sp.getStringSet("recipients_id", new HashSet<String>());
+
+        List<String> list = new ArrayList<String>(recipient_ids);
+
+        a.setTitle(edObject.getText().toString());
+        a.setContent(edContent.getText().toString());
+        a.setCategory(category.getSelectedItem().toString());
+
+        for (String s : list) {
+            com.wefly.wealert.dbstore.OtherRecipient r = new com.wefly.wealert.dbstore.OtherRecipient();
+            r.setRaw_id(Integer.parseInt(s));
+            a.otherRecipients.add(r);
+        }
+
         for (Piece p : pieces) {
             piece.setUrl(p.getUrl());
             a.pieces.add(piece);
         }
+
         long id = box.put(a);
+        if (id != 0) {
+            Snackbar.make(vRecipient, "Alert successfully saved!", Snackbar.LENGTH_LONG).show();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         System.out.println("Box alert:" + id);
     }
 
@@ -636,7 +702,6 @@ public class BootActivity extends AppCompatActivity {
     /***************GREEN ROBOT EVENT*********************/
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBeforeSendAlert(BeforeSendAlertEvent event) {
-        StoreAlert();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -763,7 +828,6 @@ public class BootActivity extends AppCompatActivity {
         };
 
         Observable<String> observable = new CategoriesListObservable().getList();
-
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(mObserver);
@@ -804,15 +868,15 @@ public class BootActivity extends AppCompatActivity {
                 recipientList.setAdapter(new RecipientAdapter(getApplicationContext(), recipients));
             }
         };
-        Observable<Recipient> observable = new RecipientsListObservable().getList();
 
+        Observable<Recipient> observable = new RecipientsListObservable().getList();
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(mObserver);
     }
 
     public void SendRx() {
-        IOSDialog dialog=LoaderProgress("Alert","Sending...");
+        IOSDialog dialog = LoaderProgress("Alert", "Sending...");
         if (hasRecipientsID()) {
             Observer mObserver = new Observer<Boolean>() {
                 @Override
@@ -829,16 +893,22 @@ public class BootActivity extends AppCompatActivity {
                 @Override
                 public void onError(Throwable e) {
                     Toast.makeText(BootActivity.this, "Alert send Error", Toast.LENGTH_SHORT).show();
+                    showStoreAlertDialog();
                 }
 
                 @Override
                 public void onComplete() {
                     showNotification("Alert Sended!");
                     dialog.dismiss();
+
+                    SharedPreferences sp = getSharedPreferences("recipients", 0);
+                    sp.edit().remove("recipients_id").apply();
+
                     Toast.makeText(BootActivity.this, "Alert Sended!", Toast.LENGTH_SHORT).show();
                     uploadRx();
                 }
             };
+
             Observable<Boolean> observable = new AlertPostObservable().send(alert);
 
             observable.observeOn(AndroidSchedulers.mainThread())
@@ -850,7 +920,7 @@ public class BootActivity extends AppCompatActivity {
     }
 
     private void uploadRx() {
-        IOSDialog dialog=LoaderProgress("Piece","Uploading...");
+        IOSDialog dialog = LoaderProgress("Piece", "Uploading...");
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -865,7 +935,7 @@ public class BootActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Toast.makeText(BootActivity.this, "Piece send Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BootActivity.this, "Piece send Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -882,7 +952,7 @@ public class BootActivity extends AppCompatActivity {
                 }, 1000);
             }
         };
-        Observable<Boolean> observable = new PieceUploadObservable().upload(pieces, alert);
+        Observable<Boolean> observable = new PieceUploadObservable().upload(pieces);
 
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
@@ -934,7 +1004,7 @@ public class BootActivity extends AppCompatActivity {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.drawable.ic_logo)
-                        .setContentTitle("Wefly locate")
+                        .setContentTitle("Wefly")
                         .setContentText(msg);
 
         // Gets an instance of the NotificationManager service//
@@ -945,15 +1015,15 @@ public class BootActivity extends AppCompatActivity {
         mNotificationManager.notify(001, mBuilder.build());
     }
 
-    public IOSDialog LoaderProgress(String title,String content){
-        final IOSDialog dialog0 = new IOSDialog.Builder(BootActivity.this)
+    public IOSDialog LoaderProgress(String title, String content) {
+        final IOSDialog dialog = new IOSDialog.Builder(BootActivity.this)
                 .setTitle(title)
                 .setMessageContent(content)
-                .setSpinnerColorRes(R.color.primaryDark)
+                .setSpinnerColorRes(R.color.colorPrimary)
                 .setCancelable(false)
                 .setTitleColorRes(R.color.white)
                 .setMessageContentGravity(Gravity.END)
                 .build();
-        return dialog0;
+        return dialog;
     }
 }

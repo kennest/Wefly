@@ -9,8 +9,5 @@
 
     <!--rounded background-->
     <dimen name="activity_vertical_margin_top_cus">90dp</dimen>
-    <dimen name="activity_vertical_margin_top_cus_frag">58dp</dimen>
-    <dimen name="activity_vertical_margin_custom">30dp</dimen>
 
-    <dimen name="linear_item_recipients_margin">110dp</dimen>
 </resources>

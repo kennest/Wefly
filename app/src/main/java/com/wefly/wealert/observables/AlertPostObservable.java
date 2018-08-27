@@ -1,6 +1,7 @@
 package com.wefly.wealert.observables;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -17,38 +18,35 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.wefly.wealert.tasks.AlertPostItemTask.JSON;
-
 public class AlertPostObservable {
-    AppController appController=AppController.getInstance();
-    static final String url= Constants.SEND_ALERT_URL;
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    final Alert alert = new Alert();
+    private AppController appController = AppController.getInstance();
+    private static final String url = Constants.SEND_ALERT_URL;
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private String response;
 
     @SuppressLint("CheckResult")
 
-    public Observable<Boolean> send(Alert alert){
-       return Observable.fromCallable(() -> process(alert));
+    public Observable<Boolean> send(Alert alert) {
+        return Observable.fromCallable(() -> process(alert));
     }
 
-    private Boolean process(Alert alert){
+    private Boolean process(Alert alert) {
         try {
-            response = getResponseFromHttpUrl(Constants.SEND_ALERT_URL,alert);
+            response = getResponseFromHttpUrl(url, alert);
             Log.e("Alert Sent Response ", response.trim());
 
             //Store the response in the sharedPref
@@ -58,14 +56,14 @@ public class AlertPostObservable {
             editor.apply();
 
         } catch (Exception e) {
-            EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));
+            EventBus.getDefault().post(new JsonExceptionEvent("Error:" + e.getMessage()));
             e.printStackTrace();
             return false;
         }
         return true;
     }
 
-    public String getResponseFromHttpUrl(@NonNull String url,@NonNull Alert alert) throws IOException {
+    public String getResponseFromHttpUrl(@NonNull String url, @NonNull Alert alert) throws IOException {
         OkHttpClient client = new OkHttpClient();
         JSONObject json = new JSONObject();
 
@@ -74,23 +72,23 @@ public class AlertPostObservable {
             json.put("titre", alert.getObject());
             json.put("contenu", alert.getContent());
             json.put("destinataires", recipientsIDFromPrefs());
+            ;
 
             json.put("longitude", Double.valueOf(FastSave.getInstance().getString("long")));
             json.put("latitude", Double.valueOf(FastSave.getInstance().getString("lat")));
 
             json.put("date_alerte", new org.joda.time.DateTime(org.joda.time.DateTimeZone.UTC));
 
-
             //on revoie l'Id de la categorie correspondant au texte contenu dans la categorie
-            for (Map.Entry entry : appController.alert_categories.entrySet()) {
+            for (Map.Entry entry : loadCategoriesMap("categories_map").entrySet()) {
                 if (entry.getKey().toString().equals(alert.getCategory()))
-                    Log.v("Alert CAT", entry.getKey().toString() + ":" + alert.getCategory());
+                    Log.e("Alert CAT", entry.getKey().toString() + ":" + alert.getCategory());
                 json.put("categorie", entry.getValue());
             }
 
             Log.v("ALERT JSON PARAMS", json.toString());
         } catch (JSONException e) {
-            EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));
+            EventBus.getDefault().post(new JsonExceptionEvent("Error:" + e.getMessage()));
             e.printStackTrace();
         }
 
@@ -109,8 +107,29 @@ public class AlertPostObservable {
         //We retrieve the recipients ID store in RecipientAdapter an attach them to alert object
         SharedPreferences sp = appController.getApplicationContext().getSharedPreferences("recipients", 0);
         Set recipient_ids = sp.getStringSet("recipients_id", new HashSet<String>());
+        Log.e("RECIP SHAREP", recipient_ids.toString());
         List<String> list = new ArrayList<String>(recipient_ids);
         String objects = list.toString();
         return objects;
+    }
+
+    private Map<String, Integer> loadCategoriesMap(String key) {
+        Map<String, Integer> outputMap = new HashMap<String, Integer>();
+        SharedPreferences pSharedPref = appController.getApplicationContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        try {
+            if (pSharedPref != null) {
+                String jsonString = pSharedPref.getString(key, (new JSONObject()).toString());
+                JSONObject jsonObject = new JSONObject(jsonString);
+                Iterator<String> keysItr = jsonObject.keys();
+                while (keysItr.hasNext()) {
+                    String k = keysItr.next();
+                    Integer v = (Integer) jsonObject.get(k);
+                    outputMap.put(k, v);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return outputMap;
     }
 }

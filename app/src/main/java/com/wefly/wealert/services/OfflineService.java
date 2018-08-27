@@ -1,31 +1,24 @@
 package com.wefly.wealert.services;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
-import com.github.pwittchen.reactivenetwork.library.rx2.ConnectivityPredicate;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.wefly.wealert.R;
-import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.dbstore.Alert;
-import com.wefly.wealert.events.RecipientEmptyEvent;
+import com.wefly.wealert.dbstore.OtherRecipient;
 import com.wefly.wealert.models.Piece;
 import com.wefly.wealert.observables.AlertPostObservable;
 import com.wefly.wealert.observables.PieceUploadObservable;
-import com.wefly.wealert.tracking.NavigationService;
-import com.wefly.wealert.tracking.SendRepportsTask;
-
-import org.greenrobot.eventbus.EventBus;
+import com.wefly.wealert.utils.AppController;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,9 +42,9 @@ public class OfflineService extends Service {
     Box<Alert> box = boxStore.boxFor(Alert.class);
     List<Piece> pieces = new ArrayList<>();
     Piece piece = new Piece();
-    com.wefly.wealert.models.Alert alert = new com.wefly.wealert.models.Alert();
     Timer mTimer = null;
-    long notify_interval = 30000;
+    long period = 20000;
+    long delay=30000;
 
     @Nullable
     @Override
@@ -62,60 +55,83 @@ public class OfflineService extends Service {
     @Override
     public void onCreate() {
         mTimer = new Timer();
-        mTimer.schedule(new TimerTaskSendAlertLocation(), 1, notify_interval);
+        TimerTask timerTask=new TimerTaskSendAlertLocation(box.getAll().size(),mTimer);
+        mTimer.schedule(timerTask, delay, period);
     }
 
     @SuppressLint("CheckResult")
     protected void doSend() {
-        Box<Alert> alertBox = boxStore.boxFor(Alert.class);
-        if(alertBox.count()>0){
-            Toast.makeText(getBaseContext(),"Offline task Init",Toast.LENGTH_LONG).show();
-            Alert a = boxStore.boxFor(Alert.class).get(alertBox.count());
+        Toast.makeText(getBaseContext(), "Offline task Init:" + box.getAll().size(), Toast.LENGTH_SHORT).show();
+        SharedPreferences sp = getSharedPreferences("recipients", 0);
+
+        for (Alert a : box.getAll()) {
+            com.wefly.wealert.models.Alert alert = new com.wefly.wealert.models.Alert();
+
             alert.setContent(a.getContent());
-            alert.setCategory(a.getRecipientsID());
+            alert.setCategory(a.getCategory());
             alert.setObject(a.getTitle());
-            for (com.wefly.wealert.dbstore.Piece p : a.pieces) {
-                piece.setUrl(p.getUrl());
-                pieces.add(piece);
+
+            Set<String> recipient_ids = new HashSet<>();
+
+            for (OtherRecipient r : a.otherRecipients) {
+                recipient_ids.add(String.valueOf(r.getRaw_id()));
             }
-            SendAlertRx(alert);
+
+            sp.edit().putStringSet("recipients_id", recipient_ids).apply();
+
+            for (com.wefly.wealert.dbstore.Piece p : a.pieces) {
+                if (p.getUrl() != null) {
+                    piece.setUrl(p.getUrl());
+                    pieces.add(piece);
+                }
+            }
+            SendAlertRx(alert, a);
         }
     }
 
-    public void SendAlertRx(com.wefly.wealert.models.Alert a) {
-        if (hasRecipientsID()) {
+    public void SendAlertRx(com.wefly.wealert.models.Alert a, Alert an) {
+        if (hasRecipientsID() && box.getAll().size()>0) {
             Observer mObserver = new Observer<Boolean>() {
+
                 @Override
                 public void onSubscribe(Disposable d) {
-
+                    Log.e("AlertBox count 0",String.valueOf(box.count()));
+                    String msg = getString(R.string.offline_start_txt);
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                    showNotification(msg);
                 }
 
                 @Override
                 public void onNext(Boolean r) {
-
+                    if(r) {
+                        box.remove(an);
+                        Log.e("AlertBox count A", String.valueOf(box.count()));
+                    }
                 }
 
                 @Override
                 public void onError(Throwable e) {
-
+                    Toast.makeText(getApplicationContext(), R.string.app_name + "offline task error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onComplete() {
-                    uploadRx(pieces, a);
+                    SharedPreferences sp = getSharedPreferences("recipients", 0);
+                    sp.edit().remove("recipients_id").apply();
+                    Log.e("AlertBox count Z",String.valueOf(box.count()));
+                    uploadRx(pieces);
                 }
             };
             Observable<Boolean> observable = new AlertPostObservable().send(a);
-
-            observable.observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.newThread())
+            observable
+                    .take(box.count())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
                     .subscribe(mObserver);
-        } else {
-            EventBus.getDefault().post(new RecipientEmptyEvent(getString(R.string.empty_recipient)));
         }
     }
 
-    private void uploadRx(List<Piece> plist, com.wefly.wealert.models.Alert a) {
+    private void uploadRx(List<Piece> plist) {
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -129,18 +145,23 @@ public class OfflineService extends Service {
 
             @Override
             public void onError(Throwable e) {
-
+                Toast.makeText(getApplicationContext(), R.string.app_name + "offline task error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onComplete() {
-                box.remove(box.count());
+                box.removeAll();
+                String msg = getString(R.string.offline_end_txt);
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                showNotification(msg);
             }
         };
-        Observable<Boolean> observable = new PieceUploadObservable().upload(plist, a);
 
-        observable.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
+        Observable<Boolean> observable = new PieceUploadObservable().upload(plist);
+        observable
+                .take(pieces.size())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(mObserver);
     }
 
@@ -156,23 +177,56 @@ public class OfflineService extends Service {
     }
 
     private class TimerTaskSendAlertLocation extends TimerTask {
+        private int maxCalledTimes = 0;
+        private int calledTimes=0;
+        private Timer timer;
+
+        TimerTaskSendAlertLocation(int maxCalledTimes, Timer timer) {
+            this.maxCalledTimes = maxCalledTimes;
+            this.timer = timer;
+            Log.e("AlertBox count A",String.valueOf(box.count()));
+        }
+
         @SuppressLint("CheckResult")
         @Override
         public void run() {
-            ReactiveNetwork.observeNetworkConnectivity(getApplicationContext())
-                    .subscribeOn(Schedulers.io())
-                    .filter(ConnectivityPredicate.hasState(NetworkInfo.State.CONNECTED))
-                    .filter(ConnectivityPredicate.hasType(ConnectivityManager.TYPE_MOBILE))
-                    .filter(ConnectivityPredicate.hasType(ConnectivityManager.TYPE_WIFI))
-                    .retryWhen(observable -> Observable.timer(5, TimeUnit.SECONDS))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Connectivity>() {
-                        @Override public void accept(final Connectivity connectivity) {
-                            if(connectivity.available()){
-                                doSend();
+            if (calledTimes == maxCalledTimes) {
+                timer.cancel();
+                Log.e("Offline service:","CANCELED");
+            } else {
+                Log.e("Offline service:","STARTED");
+                ReactiveNetwork.observeInternetConnectivity()
+                        .subscribeOn(Schedulers.trampoline())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(Boolean isConnectedToInternet) {
+                                if (isConnectedToInternet) {
+                                    calledTimes++;
+                                    if (box.getAll().size() > 0) {
+                                        doSend();
+                                    }
+                                }
                             }
-                        }
-                    });
+                        });
+            }
+            Log.e("Offline service:","FINISHED");
         }
+    }
+
+    public void showNotification(String msg) {
+        //Get an instance of NotificationManager//
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_logo)
+                        .setContentTitle("Wefly")
+                        .setContentText(msg);
+
+        // Gets an instance of the NotificationManager service//
+
+        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+//        NotificationManager.notify().
+        mNotificationManager.notify(001, mBuilder.build());
     }
 }

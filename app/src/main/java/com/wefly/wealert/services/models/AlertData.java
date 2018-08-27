@@ -38,14 +38,14 @@ public class AlertData {
 
     @SerializedName("piece_join_alerte")
     @Expose
-    public List<Piece> pieces=new ArrayList<>();
+    public List<AlertDataPiece> alertDataPieces =new ArrayList<>();
 
-    public List<Piece> getPieces() {
-        return pieces;
+    public List<AlertDataPiece> getAlertDataPieces() {
+        return alertDataPieces;
     }
 
-    public void setPieces(List<Piece> pieces) {
-        this.pieces = pieces;
+    public void setAlertDataPieces(List<AlertDataPiece> alertDataPieces) {
+        this.alertDataPieces = alertDataPieces;
     }
 
     public String getTitre() {

@@ -5,17 +5,9 @@ import io.objectbox.annotation.Id;
 
 @Entity
 public class OtherRecipient {
-    @Id
-    private long id;
+    @Id(assignable = true)
+    public long id;
     private int raw_id;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public int getRaw_id() {
         return raw_id;

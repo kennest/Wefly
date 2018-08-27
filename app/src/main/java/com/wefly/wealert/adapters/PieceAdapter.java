@@ -87,13 +87,13 @@ public class PieceAdapter extends BaseAdapter {
     }
 
     private void storePieces() {
-        FastSave.getInstance().saveObjectsList("pieces",pieces);
+        FastSave.getInstance().saveObjectsList("alertDataPieces",pieces);
     }
 
     protected List<Piece> getStoredPieces() {
         List<Piece> list = new ArrayList<>();
-        if(FastSave.getInstance().isKeyExists("pieces")) {
-            list = FastSave.getInstance().getObjectsList("pieces",Piece.class);
+        if(FastSave.getInstance().isKeyExists("alertDataPieces")) {
+            list = FastSave.getInstance().getObjectsList("alertDataPieces",Piece.class);
         }
         return list;
     }

@@ -80,7 +80,7 @@ public class PieceUploadTask extends AsyncTask<String, Integer, String> {
                     Thread.sleep(1000);
                     publishProgress(progess+1);
                     result = util.uploadPiece(p, "PJ_" + System.nanoTime(), Constants.SEND_FILE_URL);
-                    Log.v(getClass().getSimpleName(),"Piece progress"+progess);
+                    Log.v(getClass().getSimpleName(),"AlertDataPiece progress"+progess);
                 }
         } catch (IOException | InterruptedException e) {
             EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));
@@ -125,7 +125,7 @@ public class PieceUploadTask extends AsyncTask<String, Integer, String> {
                 }
 
                 Log.v("PieceUploadTask params", dataJson.toString());
-                Log.v("Piece path", piece.getExtension(piece.getUrl()));
+                Log.v("AlertDataPiece path", piece.getExtension(piece.getUrl()));
 
                 //Build request body
                 RequestBody body = RequestBody.create(JSON, dataJson.toString());
@@ -145,7 +145,7 @@ public class PieceUploadTask extends AsyncTask<String, Integer, String> {
                 notifyOnPieceSendListener(false);
                 e.printStackTrace();
             }
-            Log.v("Piece Upload Result", result);
+            Log.v("AlertDataPiece Upload Result", result);
             return result;
         }
 

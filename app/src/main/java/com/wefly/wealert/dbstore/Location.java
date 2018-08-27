@@ -7,7 +7,7 @@ import io.objectbox.annotation.NameInDb;
 @Entity
 public class Location {
     @Id
-    private long id;
+    public long id;
 
     @NameInDb("latitude")
     private Double latitude;
@@ -17,14 +17,6 @@ public class Location {
 
     @NameInDb("created_at")
     private String date;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public Double getLatitude() {
         return latitude;

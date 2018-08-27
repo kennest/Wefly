@@ -1,27 +1,33 @@
 package com.wefly.wealert.dbstore;
 
+import io.objectbox.annotation.Backlink;
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 import io.objectbox.relation.ToMany;
 
 @Entity
 public class AlertData {
-    @Id
-    private long id;
+    @Id(assignable = true)
+    public long id;
+    private int raw_id;
     private String titre;
     private String contenu;
+
     public ToMany<Recipient> destinataires;
+
+    @Backlink
     public ToMany<Piece> pieces;
+
     private Double latitude;
     private Double longitude;
     private String date_de_creation;
 
-    public long getId() {
-        return id;
+    public int getRaw_id() {
+        return raw_id;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setRaw_id(int raw_id) {
+        this.raw_id = raw_id;
     }
 
     public String getTitre() {

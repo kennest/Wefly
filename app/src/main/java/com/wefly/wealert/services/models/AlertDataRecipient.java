@@ -13,7 +13,7 @@ public class AlertDataRecipient {
     @Expose
     private int id;
 
-    @SerializedName("username")
+    @SerializedName("user")
     @Expose
     public User user;
 

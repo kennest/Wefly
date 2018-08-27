@@ -451,7 +451,7 @@ public class BootActivity extends AppCompatActivity {
             recordBtn.setEnabled(false);
 
             audioimage.setOnClickListener(v -> {
-                Toast.makeText(getApplicationContext(), "Piece removed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "AlertDataPiece removed!", Toast.LENGTH_SHORT).show();
                 String index = v.getTag().toString();
                 Log.e("audio clicked index", String.valueOf(index));
                 List<Piece> tmp = new ArrayList<>();
@@ -492,19 +492,19 @@ public class BootActivity extends AppCompatActivity {
     }
 
     protected void storePieces() {
-        FastSave.getInstance().saveObjectsList("pieces", pieces);
+        FastSave.getInstance().saveObjectsList("alertDataPieces", pieces);
     }
 
     protected List<Piece> getStoredPieces() {
         List<Piece> list = new ArrayList<>();
-        if (FastSave.getInstance().isKeyExists("pieces")) {
-            list = FastSave.getInstance().getObjectsList("pieces", Piece.class);
+        if (FastSave.getInstance().isKeyExists("alertDataPieces")) {
+            list = FastSave.getInstance().getObjectsList("alertDataPieces", Piece.class);
         }
         return list;
     }
 
     protected void deleteStoredPieces() {
-        FastSave.getInstance().deleteValue("pieces");
+        FastSave.getInstance().deleteValue("alertDataPieces");
     }
 
     private void InitSideMenu() {
@@ -920,7 +920,7 @@ public class BootActivity extends AppCompatActivity {
     }
 
     private void uploadRx() {
-        IOSDialog dialog = LoaderProgress("Piece", "Uploading...");
+        IOSDialog dialog = LoaderProgress("AlertDataPiece", "Uploading...");
         Observer mObserver = new Observer<Boolean>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -935,14 +935,14 @@ public class BootActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Toast.makeText(BootActivity.this, "Piece send Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(BootActivity.this, "AlertDataPiece send Error:" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onComplete() {
-                //Toast.makeText(BootActivity.this, "Piece Sended!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(BootActivity.this, "AlertDataPiece Sended!", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
-                showNotification("Piece Sended!");
+                showNotification("AlertDataPiece Sended!");
                 deleteStoredPieces();
                 new Handler().postDelayed(new Runnable() {
                     @Override

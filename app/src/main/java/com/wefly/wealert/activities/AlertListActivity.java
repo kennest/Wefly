@@ -96,53 +96,6 @@ public class AlertListActivity extends AppCompatActivity {
         InitSideMenu();
     }
 
-    protected void AlertSentListRX() {
-        Observer mObserver = new Observer<AlertResponse>() {
-            Box<AlertData> Alertbox = AppController.boxStore.boxFor(AlertData.class);
-            List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
-
-            @Override
-            public void onSubscribe(Disposable disposable) {
-                Alertbox.removeAll();
-            }
-
-            @Override
-            public void onNext(AlertResponse response) {
-                for (com.wefly.wealert.services.models.AlertData x : response.getData()) {
-                    alertDataList.add(x);
-                    for (com.wefly.wealert.services.models.AlertData d : response.getData()) {
-                        AlertData item = new AlertData();
-                        item.setContenu(d.getContenu());
-                        item.setTitre(d.getTitre());
-                        item.setDate_de_creation(d.getDate_de_creation());
-                        item.setLatitude(d.getLatitude());
-                        item.setLongitude(d.getLongitude());
-                        Alertbox.put(item);
-                        Toast.makeText(getApplicationContext(), "ALert count" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Toast.makeText(getApplicationContext(), "OBS error" + e.getMessage(), Toast.LENGTH_LONG).show();
-                Log.e("OBS error: ", e.getMessage());
-            }
-
-            @Override
-            public void onComplete() {
-                Toast.makeText(getApplicationContext(), "ALert count" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
-            }
-        };
-
-        APIService service = APIClient.getClient().create(APIService.class);
-        Observable<AlertResponse> observable = service.AlertSentList("JWT " + AppController.getInstance().getToken());
-        observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .subscribe(mObserver);
-    }
-
     protected void SendNewAlert() {
         Intent intent = new Intent(getApplicationContext(), BootActivity.class);
         startActivity(intent);

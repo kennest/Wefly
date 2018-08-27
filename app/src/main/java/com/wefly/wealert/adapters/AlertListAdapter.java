@@ -6,9 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wefly.wealert.R;
+import com.wefly.wealert.dbstore.AlertData_;
+import com.wefly.wealert.dbstore.Piece;
 import com.wefly.wealert.services.models.AlertData;
+import com.wefly.wealert.utils.AppController;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,11 +22,14 @@ import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.objectbox.Box;
+import io.objectbox.query.Query;
 
 public class AlertListAdapter extends BaseAdapter {
     private Context context;
     private List<AlertData> dataList;
     private LayoutInflater inflater;
+    Box<com.wefly.wealert.dbstore.AlertData> Alertbox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.AlertData.class);
 
     public AlertListAdapter(Context ctx, List<AlertData> alertDataList) {
         this.context = ctx;
@@ -70,6 +77,28 @@ public class AlertListAdapter extends BaseAdapter {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        view.setTag(item.getId());
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long id= Long.parseLong(view.getTag().toString());
+
+                Query query = Alertbox.query()
+                        .equal(AlertData_.raw_id, id).build();
+
+                List<com.wefly.wealert.dbstore.AlertData> alerts = query.find();
+
+               for(com.wefly.wealert.dbstore.AlertData n:alerts){
+                   Toast.makeText(context, "CLicked ID:" + id + " Alert ID:" + n.getRaw_id(), Toast.LENGTH_LONG).show();
+                   for (Piece x : n.pieces) {
+                       Toast.makeText(context, "Piece url:" + x.getUrl(), Toast.LENGTH_LONG).show();
+                   }
+               }
+
+            }
+        });
 
         return view;
     }

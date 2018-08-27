@@ -80,7 +80,7 @@ public class PieceUploadObservable {
 
 
             Log.v("PieceUploadTask params", dataJson.toString());
-            Log.v("Piece path", piece.getExtension(piece.getUrl()));
+            Log.v("AlertDataPiece path", piece.getExtension(piece.getUrl()));
 
             //Build request body
             RequestBody body = RequestBody.create(JSON, dataJson.toString());
@@ -99,7 +99,7 @@ public class PieceUploadObservable {
             EventBus.getDefault().post(new JsonExceptionEvent("Error:"+e.getMessage()));
             e.printStackTrace();
         }
-        Log.v("Piece Upload Result", result);
+        Log.v("AlertDataPiece Upload Result", result);
         return result;
     }
 }

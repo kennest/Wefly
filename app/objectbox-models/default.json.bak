@@ -73,7 +73,7 @@
     },
     {
       "id": "4:3928741852586371511",
-      "lastPropertyId": "3:2088758522869502770",
+      "lastPropertyId": "5:5879398009376636547",
       "name": "Piece",
       "properties": [
         {
@@ -88,13 +88,22 @@
           "id": "3:2088758522869502770",
           "indexId": "1:6760004289082171006",
           "name": "alertId"
+        },
+        {
+          "id": "4:2117300643117951690",
+          "name": "raw_id"
+        },
+        {
+          "id": "5:5879398009376636547",
+          "indexId": "2:9094933400076075367",
+          "name": "alertdataId"
         }
       ],
       "relations": []
     },
     {
       "id": "5:2673204039589594722",
-      "lastPropertyId": "4:3941268504189966046",
+      "lastPropertyId": "5:4724010541724741790",
       "name": "Alert",
       "properties": [
         {
@@ -112,13 +121,13 @@
         {
           "id": "4:3941268504189966046",
           "name": "category"
+        },
+        {
+          "id": "5:4724010541724741790",
+          "name": "raw_id"
         }
       ],
       "relations": [
-        {
-          "id": "1:6837602821664155835",
-          "name": "pieces"
-        },
         {
           "id": "2:7257568897064099011",
           "name": "recipients"
@@ -168,7 +177,7 @@
     },
     {
       "id": "8:7365862290465380402",
-      "lastPropertyId": "6:574087468293775684",
+      "lastPropertyId": "7:5230200743725576676",
       "name": "AlertData",
       "properties": [
         {
@@ -194,25 +203,35 @@
         {
           "id": "6:574087468293775684",
           "name": "date_de_creation"
+        },
+        {
+          "id": "7:5230200743725576676",
+          "name": "raw_id"
         }
       ],
       "relations": [
         {
           "id": "5:8794819625712814598",
           "name": "destinataires"
+        },
+        {
+          "id": "6:108782649678727647",
+          "name": "pieces"
         }
       ]
     }
   ],
   "lastEntityId": "8:7365862290465380402",
-  "lastIndexId": "1:6760004289082171006",
-  "lastRelationId": "5:8794819625712814598",
+  "lastIndexId": "2:9094933400076075367",
+  "lastRelationId": "6:108782649678727647",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
   "modelVersionParserMinimum": 4,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
   "retiredPropertyUids": [],
-  "retiredRelationUids": [],
+  "retiredRelationUids": [
+    6837602821664155835
+  ],
   "version": 1
 }

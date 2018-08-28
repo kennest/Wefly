@@ -24,11 +24,11 @@ public class AlertData {
     @Expose
     private int id;
 
-    @SerializedName("lat")
+    @SerializedName("latitude")
     @Expose
     private Double latitude;
 
-    @SerializedName("long")
+    @SerializedName("longitude")
     @Expose
     private Double longitude;
 

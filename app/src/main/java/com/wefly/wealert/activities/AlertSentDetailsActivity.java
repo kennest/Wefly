@@ -5,8 +5,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -29,8 +32,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.objectbox.Box;
 
@@ -41,6 +48,9 @@ public class AlertSentDetailsActivity extends AppCompatActivity implements BaseS
     List<Recipient> recipients=new ArrayList<>();
     List<Piece> pieces=new ArrayList<>();
     JcPlayerView jcplayerView;
+    TextView title,date,content;
+    Toolbar toolbar;
+    FloatingActionButton map;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +59,12 @@ public class AlertSentDetailsActivity extends AppCompatActivity implements BaseS
         mDemoSlider = findViewById(R.id.slider);
         chipsInput=findViewById(R.id.chips_input);
         jcplayerView = (JcPlayerView) findViewById(R.id.jcplayer);
+        title=findViewById(R.id.detail_title);
+        content=findViewById(R.id.detail_content);
+        date=findViewById(R.id.detail_date);
+        map=findViewById(R.id.map);
+
+        toolbar = findViewById(R.id.toolbar);
 
         Intent intent = getIntent();
         long id = intent.getLongExtra("alert_id",0);
@@ -57,11 +73,33 @@ public class AlertSentDetailsActivity extends AppCompatActivity implements BaseS
 
         AlertData a=dataBox.get(id);
 
+        title.setText(a.getTitre());
+        content.setText(a.getContenu());
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        String title_date="";
+        try {
+            Date dt = format.parse(a.getDate_de_creation());
+            title_date=dt.toString();
+            date.setText(dt.toString());
+            System.out.println(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        toolbar.setTitle(a.getTitre()+"-"+title_date);
+        setSupportActionBar(toolbar);
+
         recipients.addAll(a.destinataires);
 
         pieces.addAll(a.pieces);
 
-        Toast.makeText(getApplicationContext(),"DETAIL ID"+id,Toast.LENGTH_LONG).show();
+        map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowOnMap(a.getLatitude(),a.getLongitude());
+            }
+        });
 
         InitSlider(pieces);
         InitRecipientChips(recipients);
@@ -159,5 +197,14 @@ public class AlertSentDetailsActivity extends AppCompatActivity implements BaseS
     @Override
     public void onPageScrollStateChanged(int i) {
 
+    }
+
+    protected void ShowOnMap(Double lat,Double lon){
+        Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lon+"");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 }

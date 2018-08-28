@@ -1,73 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.wefly.wealert.activities.AlertSentDetailsActivity">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:elevation="8dp">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:fillViewport="true"
+            android:scrollbars="vertical">
 
-            <com.glide.slider.library.SliderLayout
-                android:id="@+id/slider"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:elevation="8dp" />
-
-            <com.example.jean.jcplayer.view.JcPlayerView
-                android:id="@+id/jcplayer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
-
-            <com.pchmn.materialchips.ChipsInput
-                android:id="@+id/chips_input"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:elevation="8dp"
-                app:chip_backgroundColor="@color/cardview_shadow_end_color"
-                app:chip_deletable="true"
-                app:chip_hasAvatarIcon="true"
-                app:hint="Recipient List">
-
-            </com.pchmn.materialchips.ChipsInput>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/detail_title"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/title"
-                    android:textSize="40sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/detail_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="date"
-                    android:textStyle="bold" />
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorPrimary"
+                        app:titleTextColor="@color/white">
 
-                <TextView
-                    android:id="@+id/detail_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/content"
-                    android:textSize="18sp" />
+                    </android.support.v7.widget.Toolbar>
 
-            </LinearLayout>
+                    <com.glide.slider.library.SliderLayout
+                        android:id="@+id/slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="194dp"
+                        android:elevation="8dp">
 
-        </LinearLayout>
+                    </com.glide.slider.library.SliderLayout>
+
+                    <com.example.jean.jcplayer.view.JcPlayerView
+                        android:id="@+id/jcplayer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:next_icon_color="@color/colorPrimaryDark"
+                        app:pause_icon_color="@color/colorPrimaryDark"
+                        app:play_icon_color="@color/colorPrimaryDark"
+                        app:previous_icon_color="@color/colorPrimaryDark"
+                        app:progress_color="@color/colorPrimaryDark">
+
+                    </com.example.jean.jcplayer.view.JcPlayerView>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false">
+
+                        <com.pchmn.materialchips.ChipsInput
+                            android:id="@+id/chips_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:chip_backgroundColor="@color/cardview_shadow_end_color"
+                            app:chip_deletable="true"
+                            app:chip_hasAvatarIcon="true"
+                            app:hint="Recipient List">
+
+                        </com.pchmn.materialchips.ChipsInput>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/detail_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/title"
+                            android:textColor="@color/black"
+                            android:textSize="40sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/detail_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="25dp"
+                            android:text="date"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/detail_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/content"
+                            android:textColor="@color/dark_gray"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal">
+
+                        <android.support.design.widget.FloatingActionButton
+                            android:id="@+id/map"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            app:fabSize="normal"
+                            app:srcCompat="@drawable/ic_google_maps_black_48dp"
+                            android:focusable="true" />
+                    </LinearLayout>
+                </LinearLayout>
+        </ScrollView>
 
     </android.support.v7.widget.CardView>
 </RelativeLayout>

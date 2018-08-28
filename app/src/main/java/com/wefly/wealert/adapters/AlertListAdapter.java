@@ -94,7 +94,7 @@ public class AlertListAdapter extends BaseAdapter {
                 List<com.wefly.wealert.dbstore.AlertData> alerts = query.find();
 
                 for (com.wefly.wealert.dbstore.AlertData n : alerts) {
-                    Toast.makeText(context, "CLicked ID:" + id + " Alert ID:" + n.getRaw_id(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "CLicked ID:" + id + " Alert ID:" + n.getRaw_id(), Toast.LENGTH_LONG).show();
                     Intent detail = new Intent(context, AlertSentDetailsActivity.class);
                     detail.putExtra("alert_id", n.id);
                     context.startActivity(detail);

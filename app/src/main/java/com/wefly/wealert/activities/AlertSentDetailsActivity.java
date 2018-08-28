@@ -89,6 +89,10 @@ public class AlertSentDetailsActivity extends AppCompatActivity implements BaseS
 
         toolbar.setTitle(a.getTitre()+"-"+title_date);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         recipients.addAll(a.destinataires);
 

@@ -125,7 +125,7 @@ public class AlertPagerAdapter extends PagerAdapter {
                         for (com.wefly.wealert.dbstore.Recipient e : recipientbox.getAll()) {
                             if (r.getId() == e.getRaw_id()) {
                                 if(item.destinataires.add(e)){
-                                    Toast.makeText(context, "json recipient added" + e.getRaw_id(), Toast.LENGTH_LONG).show();
+                                    //Toast.makeText(context, "json recipient added" + e.getRaw_id(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         }
@@ -138,20 +138,20 @@ public class AlertPagerAdapter extends PagerAdapter {
                         }
                     }
 
-                    Toast.makeText(context, "json pieces count" + x.getAlertDataPieces().size(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "json pieces count" + x.getAlertDataPieces().size(), Toast.LENGTH_LONG).show();
 
                     for (AlertDataPiece p : x.getAlertDataPieces()) {
                         Piece n=new Piece();
                         n.setId(p.getId());
                         n.setUrl(p.getPiece());
                         if(item.pieces.add(n)){
-                            Toast.makeText(context, "json piece added" + p.getId(), Toast.LENGTH_LONG).show();
+                            //Toast.makeText(context, "json piece added" + p.getId(), Toast.LENGTH_LONG).show();
                         }
                     }
 
                     Alertbox.put(item);
-                    Toast.makeText(context, "ALert count" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
-                    Toast.makeText(context, "pieces count" + piecebox.getAll().size(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "ALert count" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "pieces count" + piecebox.getAll().size(), Toast.LENGTH_LONG).show();
                 }
             }
 

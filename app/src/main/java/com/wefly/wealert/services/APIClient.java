@@ -1,7 +1,11 @@
 package com.wefly.wealert.services;
 
 import android.content.Context;
+import android.os.Environment;
 
+import java.io.File;
+
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -16,7 +20,14 @@ public class APIClient {
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        int cacheSize = 40 * 1024 * 1024; // 40 MiB
+        File cacheDirectory=new File(Environment.getDataDirectory().getParent()+"/wefly_okhttp_cache/");
+        Cache cache = new Cache(cacheDirectory, cacheSize);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .cache(cache)
+                .addInterceptor(interceptor)
+                .build();
 
         //String base_url="http://192.168.1.75:8000/";
         String base_url="http://178.33.130.196:8000/";

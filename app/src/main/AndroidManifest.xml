@@ -80,7 +80,11 @@
             android:theme="@style/ThemeWithoutActionBar"/>
         <activity android:name=".activities.WorkRangeActivity" />
         <activity android:name=".activities.AlertListActivity" />
-        <activity android:name=".activities.AlertSentDetailsActivity" />
+        <activity android:name=".activities.AlertSentDetailsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wefly.wealert.activities.AlertListActivity" />
+        </activity>
 
         <service
             android:name=".tracking.NavigationService"

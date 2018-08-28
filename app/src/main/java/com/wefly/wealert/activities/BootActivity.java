@@ -745,9 +745,10 @@ public class BootActivity extends AppCompatActivity {
     /***************GREEN ROBOT EVENT*********************/
 
     private void restart() {
-        Intent intent = getIntent();
+        Intent intent = new Intent(this,AlertListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         finish();
-        startActivity(new Intent(this,AlertListActivity.class));
+        startActivity(intent);
     }
 
     //Check if Lacation is enabled and launch teask

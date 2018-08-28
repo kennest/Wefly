@@ -73,14 +73,16 @@
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/new_alert"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentEnd="true"
                     android:layout_marginBottom="18dp"
                     android:layout_marginEnd="32dp"
-                    android:backgroundTint="@color/white"
                     android:clickable="true"
-                    app:srcCompat="@drawable/add_pic"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:focusable="true"
+                    app:srcCompat="@drawable/plus"
+                    app:fabSize="normal"
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="54dp" />
 

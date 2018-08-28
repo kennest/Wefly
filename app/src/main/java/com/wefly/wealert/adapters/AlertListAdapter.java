@@ -1,6 +1,7 @@
 package com.wefly.wealert.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wefly.wealert.R;
+import com.wefly.wealert.activities.AlertSentDetailsActivity;
 import com.wefly.wealert.dbstore.AlertData_;
 import com.wefly.wealert.dbstore.Piece;
 import com.wefly.wealert.dbstore.Recipient;
@@ -56,21 +58,21 @@ public class AlertListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup parent) {
         view = inflater.inflate(R.layout.alert_item, parent, false);
-        CircleImageView image=view.findViewById(R.id.piece);
-        TextView title=view.findViewById(R.id.alert_title);
-        TextView content=view.findViewById(R.id.alert_content);
-        TextView date=view.findViewById(R.id.date);
+        CircleImageView image = view.findViewById(R.id.piece);
+        TextView title = view.findViewById(R.id.alert_title);
+        TextView content = view.findViewById(R.id.alert_content);
+        TextView date = view.findViewById(R.id.date);
 
-        AlertData item=dataList.get(i);
+        AlertData item = dataList.get(i);
         image.setImageResource(R.drawable.add_pic);
         title.setText(item.getTitre());
-        if(item.getContenu().length()>35) {
-            content.setText(item.getContenu().substring(0,35)+"...");
-        }else{
+        if (item.getContenu().length() > 35) {
+            content.setText(item.getContenu().substring(0, 35) + "...");
+        } else {
             content.setText(item.getContenu());
         }
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.getDefault());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
         try {
             Date dt = format.parse(item.getDate_de_creation());
             date.setText(dt.toString());
@@ -84,23 +86,27 @@ public class AlertListAdapter extends BaseAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                long id= Long.parseLong(view.getTag().toString());
+                long id = Long.parseLong(view.getTag().toString());
 
                 Query query = Alertbox.query()
                         .equal(AlertData_.raw_id, id).build();
 
                 List<com.wefly.wealert.dbstore.AlertData> alerts = query.find();
 
-               for(com.wefly.wealert.dbstore.AlertData n:alerts){
-                   Toast.makeText(context, "CLicked ID:" + id + " Alert ID:" + n.getRaw_id(), Toast.LENGTH_LONG).show();
-                   for (Piece x : n.pieces) {
-                       Toast.makeText(context, "Piece url:" + x.getUrl(), Toast.LENGTH_LONG).show();
-                   }
+                for (com.wefly.wealert.dbstore.AlertData n : alerts) {
+                    Toast.makeText(context, "CLicked ID:" + id + " Alert ID:" + n.getRaw_id(), Toast.LENGTH_LONG).show();
+                    Intent detail = new Intent(context, AlertSentDetailsActivity.class);
+                    detail.putExtra("alert_id", n.id);
+                    context.startActivity(detail);
+//                   for (Piece x : n.pieces) {
+//                       Toast.makeText(context, "Piece url:" + x.getUrl(), Toast.LENGTH_LONG).show();
+//                   }
+//
+//                   for(Recipient r:n.destinataires){
+//                       Toast.makeText(context, "Alert Recipient:" + r.getUsername(), Toast.LENGTH_LONG).show();
+//                   }
 
-                   for(Recipient r:n.destinataires){
-                       Toast.makeText(context, "Alert Recipient:" + r.getUsername(), Toast.LENGTH_LONG).show();
-                   }
-               }
+                }
             }
         });
 

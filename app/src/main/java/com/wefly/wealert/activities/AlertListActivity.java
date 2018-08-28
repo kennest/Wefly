@@ -20,7 +20,10 @@ import com.gmail.samehadar.iosdialog.IOSDialog;
 import com.wefly.wealert.R;
 import com.wefly.wealert.adapters.AlertPagerAdapter;
 import com.wefly.wealert.adapters.DrawerListAdapter;
+import com.wefly.wealert.adapters.RecipientAdapter;
 import com.wefly.wealert.dbstore.AlertData;
+import com.wefly.wealert.models.Recipient;
+import com.wefly.wealert.observables.RecipientsListObservable;
 import com.wefly.wealert.services.APIClient;
 import com.wefly.wealert.services.models.AlertResponse;
 import com.wefly.wealert.services.APIService;
@@ -50,6 +53,8 @@ public class AlertListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alert_list_activity);
+
+        loadRecipientRx();
 
         new_alert = findViewById(R.id.new_alert);
 
@@ -179,6 +184,46 @@ public class AlertListActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void loadRecipientRx() {
+        Observer mObserver = new Observer<Recipient>() {
+            List<Recipient> recipients = new ArrayList<>();
+            Box<com.wefly.wealert.dbstore.Recipient> recipientBox = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
+                recipientBox.removeAll();
+            }
+
+            @Override
+            public void onNext(Recipient r) {
+                //Toast.makeText(BootActivity.this, "onNext called: " + r.getLastName(), Toast.LENGTH_SHORT).show();
+                recipients.add(r);
+
+                com.wefly.wealert.dbstore.Recipient recipient = new com.wefly.wealert.dbstore.Recipient();
+                recipient.setRaw_id(r.getRecipientId());
+                recipient.setAvatar(r.getAvatarUrl());
+                recipient.setUsername(r.getUserName());
+                recipientBox.put(recipient);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                //Toast.makeText(BootActivity.this, "onError called", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+                //Toast.makeText(BootActivity.this, "onComplete called", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        Observable<Recipient> observable = new RecipientsListObservable().getList();
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mObserver);
     }
 
 }

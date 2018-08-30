@@ -1,5 +1,6 @@
 package com.wefly.wealert.activities;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,17 +17,24 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.gmail.samehadar.iosdialog.IOSDialog;
 import com.wefly.wealert.R;
 import com.wefly.wealert.adapters.AlertPagerAdapter;
 import com.wefly.wealert.adapters.DrawerListAdapter;
 import com.wefly.wealert.adapters.RecipientAdapter;
 import com.wefly.wealert.dbstore.AlertData;
+import com.wefly.wealert.dbstore.Category;
 import com.wefly.wealert.models.Recipient;
 import com.wefly.wealert.observables.RecipientsListObservable;
 import com.wefly.wealert.services.APIClient;
+import com.wefly.wealert.services.models.AlertDataCategory;
+import com.wefly.wealert.services.models.AlertDataPiece;
+import com.wefly.wealert.services.models.AlertDataRecipient;
 import com.wefly.wealert.services.models.AlertResponse;
 import com.wefly.wealert.services.APIService;
+import com.wefly.wealert.services.models.CategoriesResponse;
+import com.wefly.wealert.services.models.RecipientResponse;
 import com.wefly.wealert.utils.AppController;
 
 import java.util.ArrayList;
@@ -37,24 +45,33 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import nl.psdcompany.duonavigationdrawer.views.DuoDrawerLayout;
 import nl.psdcompany.duonavigationdrawer.views.DuoMenuView;
 import nl.psdcompany.duonavigationdrawer.widgets.DuoDrawerToggle;
 
 public class AlertListActivity extends AppCompatActivity {
-    AppController appController = AppController.getInstance();
-    List<AlertData> StorealertDataList = new ArrayList<>();
-    List<com.wefly.wealert.services.models.AlertData> alertDataList = new ArrayList<>();
     FloatingActionButton new_alert;
     Toolbar toolbar;
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alert_list_activity);
 
-        loadRecipientRx();
+        ReactiveNetwork.checkInternetConnectivity()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            SyncData();
+                        }
+                    }
+                });
 
         new_alert = findViewById(R.id.new_alert);
 
@@ -186,10 +203,55 @@ public class AlertListActivity extends AppCompatActivity {
         }
     }
 
-    public void loadRecipientRx() {
-        Observer mObserver = new Observer<Recipient>() {
-            List<Recipient> recipients = new ArrayList<>();
-            Box<com.wefly.wealert.dbstore.Recipient> recipientBox = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
+    private void SyncData(){
+        loadCategorieRx();
+        loadRecipientRx();
+        loadAlertSentListRX();
+    }
+
+    public void loadCategorieRx() {
+        Observer mObserver = new Observer<CategoriesResponse>() {
+            Box<Category> categoryBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Category.class);
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                //Toast.makeText(BootActivity.this, "onSubscribe called", Toast.LENGTH_SHORT).show();
+                categoryBox.removeAll();
+            }
+
+            @Override
+            public void onNext(CategoriesResponse r) {
+                for(AlertDataCategory s:r.categories) {
+                    Toast.makeText(AlertListActivity.this, "Category ID: " + s.getId(), Toast.LENGTH_SHORT).show();
+                    Category c = new Category();
+                    c.id = categoryBox.count() + 1;
+                    c.setLabel(s.getNom());
+                    c.setRaw_id(s.getId());
+                    categoryBox.put(c);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                // Toast.makeText(BootActivity.this, "onError called", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(getApplicationContext(), "INIT Categories total"+categoryBox.count(), Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<CategoriesResponse> observable = service.CategoriesList("JWT " + AppController.getInstance().getToken());
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(mObserver);
+    }
+
+    private void loadRecipientRx() {
+        Observer mObserver = new Observer<RecipientResponse>() {
+            Box<com.wefly.wealert.dbstore.Recipient> recipientBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
 
             @Override
             public void onSubscribe(Disposable d) {
@@ -198,32 +260,136 @@ public class AlertListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNext(Recipient r) {
+            public void onNext(RecipientResponse response) {
                 //Toast.makeText(BootActivity.this, "onNext called: " + r.getLastName(), Toast.LENGTH_SHORT).show();
-                recipients.add(r);
-
-                com.wefly.wealert.dbstore.Recipient recipient = new com.wefly.wealert.dbstore.Recipient();
-                recipient.setRaw_id(r.getRecipientId());
-                recipient.setAvatar(r.getAvatarUrl());
-                recipient.setUsername(r.getUserName());
-                recipientBox.put(recipient);
+                for(AlertDataRecipient r:response.recipients) {
+                    com.wefly.wealert.dbstore.Recipient recipient = new com.wefly.wealert.dbstore.Recipient();
+                    recipient.id = recipientBox.count() + 1;
+                    recipient.setRaw_id(r.getId());
+                    recipient.setAvatar(r.getPhoto());
+                    recipient.setUsername(r.getUser().getUsername());
+                    recipient.setFirstname(r.user.getFirstname());
+                    recipient.setLastname(r.user.getLastname());
+                    recipientBox.put(recipient);
+                }
             }
 
             @Override
             public void onError(Throwable e) {
-                //Toast.makeText(BootActivity.this, "onError called", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Error called: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onComplete() {
-                //Toast.makeText(BootActivity.this, "onComplete called", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "INIT Recipients total" + recipientBox.count(), Toast.LENGTH_SHORT).show();
             }
         };
 
-        Observable<Recipient> observable = new RecipientsListObservable().getList();
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<RecipientResponse> observable = service.RecipientsList("JWT " + AppController.getInstance().getToken());
         observable.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(mObserver);
+    }
+
+    private void loadAlertSentListRX() {
+        Observer mObserver = new Observer<AlertResponse>() {
+            Box<AlertData> Alertbox = AppController.boxStore.boxFor(AlertData.class);
+            List<com.wefly.wealert.services.models.AlertData> remotelist = new ArrayList<>();
+
+            @Override
+            public void onSubscribe(Disposable disposable) {
+                //Toast.makeText(context, "alerts sent download Init" + Alertbox.getAll().size(), Toast.LENGTH_LONG).show();
+                Alertbox.removeAll();
+            }
+
+            @Override
+            public void onNext(AlertResponse response) {
+                remotelist.clear();
+                remotelist.addAll(response.getData());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(getApplicationContext(), "OBS error" + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("OBS error: ", e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                //Toast.makeText(context, "Data total" + remotelist.size(), Toast.LENGTH_LONG).show();
+                process(remotelist);
+                Toast.makeText(getApplicationContext(), "INIT Alerts total" + Alertbox.count(), Toast.LENGTH_LONG).show();
+            }
+        };
+
+        APIService service = APIClient.getClient().create(APIService.class);
+        Observable<AlertResponse> observable = service.AlertSentList("JWT " + AppController.getInstance().getToken());
+        observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.computation())
+                .subscribe(mObserver);
+    }
+    private void process(List<com.wefly.wealert.services.models.AlertData> list){
+        Box<AlertData> Alertbox = AppController.boxStore.boxFor(AlertData.class);
+        Box<com.wefly.wealert.dbstore.Recipient> recipientbox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Recipient.class);
+        Box<com.wefly.wealert.dbstore.Piece> piecebox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Piece.class);
+        Box<com.wefly.wealert.dbstore.Category> categoryBox = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Category.class);
+
+        for (com.wefly.wealert.services.models.AlertData x : list) {
+            //Toast.makeText(context, "Recipients Data count" +x.getDestinataires().size(), Toast.LENGTH_LONG).show();
+
+            AlertData item = new AlertData();
+            List<com.wefly.wealert.dbstore.Recipient> recipients=new ArrayList<>();
+
+            item.id = Alertbox.count() + 1;
+            item.setContenu(x.getContenu());
+            item.setRaw_id(x.getId());
+            item.setTitre(x.getTitre());
+            item.setDate_de_creation(x.getDate_de_creation());
+            item.setLatitude(x.getLatitude());
+            item.setLongitude(x.getLongitude());
+
+            for (AlertDataRecipient r : x.getDestinataires()) {
+                for (com.wefly.wealert.dbstore.Recipient e : recipientbox.getAll()) {
+                    //Toast.makeText(context, "Current recipient "+r.getUser().getUsername()+" *Comparing: "+r.getId()+"/"+e.getRaw_id(), Toast.LENGTH_LONG).show();
+                    if (r.getId() == e.getRaw_id()) {
+                        recipients.add(e);
+                    }
+                }
+            }
+
+            for (com.wefly.wealert.dbstore.Category c : categoryBox.getAll()) {
+                Toast.makeText(getApplicationContext(), "Category ID:" + c.getRaw_id(), Toast.LENGTH_LONG).show();
+                if (c.getRaw_id()==(x.category.getId())) {
+                    item.setCategory_id(x.category.getId());
+                    Toast.makeText(getApplicationContext(), "Category added" + c.getLabel(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            //Toast.makeText(context, "json pieces count" + x.getAlertDataPieces().size(), Toast.LENGTH_LONG).show();
+
+            for (AlertDataPiece p : x.getAlertDataPieces()) {
+                com.wefly.wealert.dbstore.Piece n = new com.wefly.wealert.dbstore.Piece();
+                n.setId(p.getId());
+                n.setUrl(p.getPiece());
+                Alertbox.attach(item);
+                if (item.pieces.add(n)) {
+                    //Toast.makeText(context, "json piece added" + p.getId(), Toast.LENGTH_LONG).show();
+                }
+            }
+            //Toast.makeText(context, "recipients find count" + recipients.size(), Toast.LENGTH_LONG).show();
+            List<Integer> ids=new ArrayList<>();
+            for(com.wefly.wealert.dbstore.Recipient r:recipients){
+                Alertbox.attach(item);
+                ids.add(r.getRaw_id());
+            }
+            item.setRecipients(ids.toString());
+
+            //Toast.makeText(context,"Current Ids:"+item.getRecipients(),Toast.LENGTH_LONG).show();
+
+            Alertbox.put(item);
+        }
     }
 
 }

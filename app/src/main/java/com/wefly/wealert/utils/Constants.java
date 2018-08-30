@@ -12,7 +12,7 @@ public class Constants {
 
     // BASE
     //public static final String BASE_URL = "http://192.168.1.66:8000/";
-    public static final String BASE_URL = "http://178.33.130.196:8000/";
+    public static final String BASE_URL = "https://wa.weflysoftware.com/";
     //public static final String BASE_URL = "http://192.168.1.75:8000/";
 
     // GET

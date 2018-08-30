@@ -61,16 +61,19 @@ public class AlertListAdapter extends BaseAdapter {
         CircleImageView image = view.findViewById(R.id.piece);
         TextView title = view.findViewById(R.id.alert_title);
         TextView content = view.findViewById(R.id.alert_content);
+        TextView category=view.findViewById(R.id.category);
         TextView date = view.findViewById(R.id.date);
 
         AlertData item = dataList.get(i);
-        image.setImageResource(R.drawable.add_pic);
+        image.setImageResource(R.drawable.baseline_notifications_active_white_48);
         title.setText(item.getTitre());
         if (item.getContenu().length() > 35) {
             content.setText(item.getContenu().substring(0, 35) + "...");
         } else {
             content.setText(item.getContenu());
         }
+
+        category.setText(item.category.getNom());
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
         try {
@@ -98,14 +101,6 @@ public class AlertListAdapter extends BaseAdapter {
                     Intent detail = new Intent(context, AlertSentDetailsActivity.class);
                     detail.putExtra("alert_id", n.id);
                     context.startActivity(detail);
-//                   for (Piece x : n.pieces) {
-//                       Toast.makeText(context, "Piece url:" + x.getUrl(), Toast.LENGTH_LONG).show();
-//                   }
-//
-//                   for(Recipient r:n.destinataires){
-//                       Toast.makeText(context, "Alert Recipient:" + r.getUsername(), Toast.LENGTH_LONG).show();
-//                   }
-
                 }
             }
         });

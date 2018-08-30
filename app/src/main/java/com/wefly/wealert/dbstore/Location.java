@@ -6,7 +6,7 @@ import io.objectbox.annotation.NameInDb;
 
 @Entity
 public class Location {
-    @Id
+    @Id(assignable = true)
     public long id;
 
     @NameInDb("latitude")

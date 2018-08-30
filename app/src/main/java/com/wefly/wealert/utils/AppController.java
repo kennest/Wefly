@@ -1,5 +1,6 @@
 package com.wefly.wealert.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
@@ -14,22 +15,34 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.appizona.yehiahd.fastsave.FastSave;
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.wefly.wealert.R;
 import com.wefly.wealert.activities.BootActivity;
 import com.wefly.wealert.activities.onboardActivity;
 import com.wefly.wealert.adapters.AlertListAdapter;
+import com.wefly.wealert.adapters.RecipientAdapter;
 import com.wefly.wealert.dbstore.AlertData;
+import com.wefly.wealert.dbstore.Category;
 import com.wefly.wealert.dbstore.MyObjectBox;
 import com.wefly.wealert.models.Piece;
 import com.wefly.wealert.models.Recipient;
+import com.wefly.wealert.observables.CategoriesListObservable;
+import com.wefly.wealert.observables.RecipientsListObservable;
 import com.wefly.wealert.services.APIClient;
 import com.wefly.wealert.services.APIService;
+import com.wefly.wealert.services.models.AlertDataCategory;
+import com.wefly.wealert.services.models.AlertDataPiece;
+import com.wefly.wealert.services.models.AlertDataRecipient;
 import com.wefly.wealert.services.models.AlertResponse;
 import com.wefly.wealert.services.models.EmployeId;
+import com.wefly.wealert.services.models.RecipientResponse;
 import com.wefly.wealert.tasks.RecipientGetTask;
 
 import org.json.JSONArray;
@@ -51,6 +64,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -104,6 +118,7 @@ public class AppController extends Application {
         return mInstance;
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -131,7 +146,6 @@ public class AppController extends Application {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
     }
-
 
     public void restartApp() {
         Intent intent = new Intent(getApplicationContext(), onboardActivity.class);

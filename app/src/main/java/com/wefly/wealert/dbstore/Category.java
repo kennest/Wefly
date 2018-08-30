@@ -8,11 +8,9 @@ import io.objectbox.relation.ToOne;
 public class Category {
     @Id(assignable = true)
     public long id;
-
     private int raw_id;
     private String label;
 
-    public ToOne<AlertData> alertData;
 
     public int getRaw_id() {
         return raw_id;

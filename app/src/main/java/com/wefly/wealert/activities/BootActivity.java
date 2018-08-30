@@ -652,7 +652,7 @@ public class BootActivity extends AppCompatActivity {
 
     private void StoreAlert() {
         //Stored Alert with ObjectBox
-        Box<com.wefly.wealert.dbstore.Alert> box = appController.boxStore.boxFor(com.wefly.wealert.dbstore.Alert.class);
+        Box<com.wefly.wealert.dbstore.Alert> box = AppController.boxStore.boxFor(com.wefly.wealert.dbstore.Alert.class);
         com.wefly.wealert.dbstore.Alert a = new com.wefly.wealert.dbstore.Alert();
         com.wefly.wealert.dbstore.Piece piece = new com.wefly.wealert.dbstore.Piece();
 
@@ -875,6 +875,7 @@ public class BootActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(mObserver);
     }
+
 
     public void SendRx() {
         IOSDialog dialog = LoaderProgress("Alert", "Sending...");

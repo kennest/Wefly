@@ -30,7 +30,7 @@
     },
     {
       "id": "2:4482243422460792299",
-      "lastPropertyId": "4:3137739140211912849",
+      "lastPropertyId": "7:1972241533715829368",
       "name": "Recipient",
       "properties": [
         {
@@ -48,6 +48,19 @@
         {
           "id": "4:3137739140211912849",
           "name": "avatar"
+        },
+        {
+          "id": "5:140206402742710972",
+          "indexId": "4:9107211985206099162",
+          "name": "alertdataId"
+        },
+        {
+          "id": "6:8766364492912185540",
+          "name": "lastname"
+        },
+        {
+          "id": "7:1972241533715829368",
+          "name": "firstname"
         }
       ],
       "relations": []
@@ -182,7 +195,7 @@
     },
     {
       "id": "8:7365862290465380402",
-      "lastPropertyId": "7:5230200743725576676",
+      "lastPropertyId": "11:4510830929414252166",
       "name": "AlertData",
       "properties": [
         {
@@ -212,28 +225,37 @@
         {
           "id": "7:5230200743725576676",
           "name": "raw_id"
+        },
+        {
+          "id": "8:7832316890341882165",
+          "name": "recipients"
+        },
+        {
+          "id": "11:4510830929414252166",
+          "name": "category_id"
         }
       ],
-      "relations": [
-        {
-          "id": "5:8794819625712814598",
-          "name": "destinataires"
-        }
-      ]
+      "relations": []
     }
   ],
   "lastEntityId": "8:7365862290465380402",
-  "lastIndexId": "3:2070983028502280106",
+  "lastIndexId": "5:5594206007317183273",
   "lastRelationId": "6:108782649678727647",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
   "modelVersionParserMinimum": 4,
   "retiredEntityUids": [],
-  "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredIndexUids": [
+    5594206007317183273
+  ],
+  "retiredPropertyUids": [
+    1112675853199808559,
+    7340090777386330760
+  ],
   "retiredRelationUids": [
     6837602821664155835,
-    108782649678727647
+    108782649678727647,
+    8794819625712814598
   ],
   "version": 1
 }

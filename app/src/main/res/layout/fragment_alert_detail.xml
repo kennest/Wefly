@@ -53,23 +53,6 @@
 
                     </com.example.jean.jcplayer.view.JcPlayerView>
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="false">
-
-                        <com.pchmn.materialchips.ChipsInput
-                            android:id="@+id/chips_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:chip_backgroundColor="@color/cardview_shadow_end_color"
-                            app:chip_deletable="true"
-                            app:chip_hasAvatarIcon="true"
-                            app:hint="Recipient List">
-
-                        </com.pchmn.materialchips.ChipsInput>
-                    </FrameLayout>
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -84,6 +67,19 @@
                             android:textColor="@color/black"
                             android:textSize="40sp"
                             android:textStyle="bold" />
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <LinearLayout
+                                android:id="@+id/recipientScroll"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal">
+
+                            </LinearLayout>
+                        </HorizontalScrollView>
 
                         <TextView
                             android:id="@+id/detail_date"
@@ -106,9 +102,9 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:gravity="center_horizontal">
+                        android:layout_height="wrap_content"
+                        android:gravity="bottom|end"
+                        android:orientation="horizontal">
 
                         <android.support.design.widget.FloatingActionButton
                             android:id="@+id/map"
@@ -116,9 +112,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:clickable="true"
+                            android:focusable="true"
                             app:fabSize="normal"
-                            app:srcCompat="@drawable/ic_google_maps_black_48dp"
-                            android:focusable="true" />
+                            app:srcCompat="@drawable/ic_google_maps_black_48dp" />
                     </LinearLayout>
                 </LinearLayout>
         </ScrollView>

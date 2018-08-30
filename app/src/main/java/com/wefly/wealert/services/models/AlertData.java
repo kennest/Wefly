@@ -34,7 +34,7 @@ public class AlertData {
 
     @SerializedName("categorie")
     @Expose
-    private AlertDataCategory category;
+    public AlertDataCategory category;
 
     @SerializedName("date_de_creation")
     @Expose
@@ -106,13 +106,5 @@ public class AlertData {
 
     public void setDestinataires(List<AlertDataRecipient> destinataires) {
         this.destinataires = destinataires;
-    }
-
-    public AlertDataCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(AlertDataCategory category) {
-        this.category = category;
     }
 }

@@ -13,12 +13,15 @@ public class AlertData {
     private int raw_id;
     private String titre;
     private String contenu;
+    private String recipients;
+    private int category_id;
 
     @Backlink
     public ToMany<Recipient> destinataires;
 
     @Backlink
     public ToMany<Piece> pieces;
+
 
     private Double latitude;
     private Double longitude;
@@ -70,5 +73,21 @@ public class AlertData {
 
     public void setDate_de_creation(String date_de_creation) {
         this.date_de_creation = date_de_creation;
+    }
+
+    public String getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(String recipients) {
+        this.recipients = recipients;
+    }
+
+    public int getCategory_id() {
+        return category_id;
+    }
+
+    public void setCategory_id(int category_id) {
+        this.category_id = category_id;
     }
 }

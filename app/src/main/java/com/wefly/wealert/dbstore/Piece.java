@@ -1,10 +1,7 @@
 package com.wefly.wealert.dbstore;
 
-import android.net.Uri;
-
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
-import io.objectbox.annotation.Transient;
 import io.objectbox.relation.ToOne;
 
 @Entity

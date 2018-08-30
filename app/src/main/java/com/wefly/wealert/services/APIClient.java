@@ -21,7 +21,7 @@ public class APIClient {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         int cacheSize = 40 * 1024 * 1024; // 40 MiB
-        File cacheDirectory=new File(Environment.getDataDirectory().getParent()+"/wefly_okhttp_cache/");
+        File cacheDirectory=new File(Environment.getDataDirectory().getAbsolutePath()+"/wefly_okhttp_cache/");
         Cache cache = new Cache(cacheDirectory, cacheSize);
 
         OkHttpClient client = new OkHttpClient.Builder()
@@ -30,7 +30,7 @@ public class APIClient {
                 .build();
 
         //String base_url="http://192.168.1.75:8000/";
-        String base_url="http://178.33.130.196:8000/";
+        String base_url="https://wa.weflysoftware.com/";
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(base_url)

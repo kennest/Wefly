@@ -6,7 +6,7 @@ import io.objectbox.relation.ToMany;
 
 @Entity
 public class AlertResponse {
-    @Id(assignable = true)
+    @Id
     public long id;
     private String next;
     public ToMany<AlertData> data;

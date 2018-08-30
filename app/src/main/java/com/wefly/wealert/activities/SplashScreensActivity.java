@@ -1,5 +1,6 @@
 package com.wefly.wealert.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,14 +13,26 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.appizona.yehiahd.fastsave.FastSave;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.wefly.wealert.dbstore.AlertData;
+import com.wefly.wealert.dbstore.Category;
 import com.wefly.wealert.events.InitDataEmptyEvent;
 import com.wefly.wealert.models.Recipient;
 import com.wefly.wealert.presenters.FormActivity;
 import com.wefly.wealert.presenters.RecipientPresenter;
+import com.wefly.wealert.services.APIClient;
+import com.wefly.wealert.services.APIService;
+import com.wefly.wealert.services.models.AlertDataCategory;
+import com.wefly.wealert.services.models.AlertDataPiece;
+import com.wefly.wealert.services.models.AlertDataRecipient;
+import com.wefly.wealert.services.models.AlertResponse;
+import com.wefly.wealert.services.models.RecipientResponse;
 import com.wefly.wealert.tasks.CategoryGetTask;
 import com.wefly.wealert.tasks.RecipientGetTask;
+import com.wefly.wealert.utils.AppController;
 import com.wefly.wealert.utils.Constants;
 import com.wefly.wealert.utils.NetworkWatcher;
 import com.wefly.wealert.utils.PermissionUtil;
@@ -37,6 +50,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import io.objectbox.Box;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class SplashScreensActivity extends FormActivity {
     private static boolean isAllPermissionGranted = false;
@@ -59,6 +80,7 @@ public class SplashScreensActivity extends FormActivity {
         super.onStop();
     }
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -261,4 +283,5 @@ public class SplashScreensActivity extends FormActivity {
         }
         return outputMap;
     }
+
 }

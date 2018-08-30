@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:alpha="60">
+    android:alpha="60"
+    tools:layout_editor_absoluteY="25dp">
 
     <LinearLayout
         android:id="@+id/recipient_avatar"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:orientation="horizontal"
         android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -27,8 +28,7 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,16 +44,15 @@
 
     <LinearLayout
         android:id="@+id/details"
-        android:layout_width="206dp"
+        android:layout_width="336dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
         android:orientation="vertical"
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.512">
+        app:layout_constraintVertical_bias="1.0">
 
         <TextView
             android:id="@+id/username"
